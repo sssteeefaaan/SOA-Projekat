@@ -1,0 +1,37 @@
+{
+	"info": {
+		"_postman_id": "ae517ba9-ff74-4de3-bfab-c5660166c58a",
+		"name": "Requests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Write-To-Influx-DB",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"measurement\": \"requested-flight-data\",\r\n    \"fields\": {\r\n        \"user\": \"maya\",\r\n        \"flight\": \"LON-SYD\",\r\n        \"from-city\": \"London\",\r\n        \"to-city\": \"Sidney\",\r\n        \"from-continent\": \"Europe\",\r\n        \"to-continent\": \"Australia\"\r\n    },\r\n    \"tags\": {\r\n        \"class\": \"Business\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:99/writeDB",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "99",
+					"path": [
+						"writeDB"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

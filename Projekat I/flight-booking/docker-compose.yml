@@ -2,13 +2,13 @@ version: "3.3"
 
 services:
 
-  api:
+  gateway:
     build:
       context: .
     image: flight-booking
     env_file: docker-compose.env
     environment:
-      SERVICES: api
+      SERVICES: gateway
       PORT: 3000
     depends_on:
       - nats
@@ -27,27 +27,58 @@ services:
     environment:
       SERVICES: flights
     depends_on:
-      - mongo
+      - influx
       - nats
     networks:
       - internal
 
-  mongo:
-    image: mongo:4
+  internal_api:
+    build:
+      context: ./internalApi
+    image: internal_api
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - influx
+      - nats
+    networks:
+      - internal
+    ports:
+      - 99:5000
+
+  influx:
+    image: influxdb:1.8
+    environment:
+      - INFLUXDB_ADMIN_ENABLED=true
     volumes:
-      - data:/data/db
+      - influxdata:/var/lib/influx.db
+    ports:
+      - 8086:8086
+    networks:
+      - internal
+    
+  grafana:
+    ports:
+      - 4200:3000
+    image: grafana/grafana
+    depends_on:
+      - influx
+    links:
+      - influx
+    volumes:
+      - influxdata:/var/lib/influx.db
     networks:
       - internal
 
   nats:
-    image: nats:2
+    image: nats:latest
     networks:
       - internal
 
   traefik:
-    image: traefik:v2.1
+    image: traefik:latest
     command:
-      - "--api.insecure=true" # Don't do that in production!
+      - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
     ports:
@@ -63,4 +94,4 @@ networks:
   internal:
 
 volumes:
-  data:
+  influxdata:
