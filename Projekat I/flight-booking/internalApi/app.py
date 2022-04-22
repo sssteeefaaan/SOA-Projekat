@@ -1,11 +1,13 @@
-from json import dumps, loads
 from datetime import datetime
 from flask import Flask, request
 from influxdb import InfluxDBClient
 from os import environ as env
 
 app = Flask(__name__)
-client = InfluxDBClient(host=env['DATABASE_HOSTNAME'], port=env['DATABASE_PORT'], username=env['DATABASE_USERNAME'], password=env['DATABASE_PASSWORD'])
+client = InfluxDBClient(host=env['INFLUX_HOST'],
+                        port=env['INFLUX_PORT'],
+                        username=env['INFLUX_USERNAME'],
+                        password=env['INFLUX_PASSWORD'])
 
 print("Connected successfully!")
 
@@ -20,9 +22,7 @@ client.switch_database(DB)
 def writeDB():
     try:
         resp = "Successful!"
-        print(request.data)
-        data = loads(request.data)
-        print("Data is this", data)
+        data = request.get_json()
         if not client.write_points(points=[{
             "time": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
             **data

@@ -39,10 +39,10 @@ services:
     image: internal_api
     environment:
       - PYTHONUNBUFFERED=1
-      - DATABASE_HOSTNAME=influx
-      - DATABASE_PORT=8086
-      - DATABASE_USERNAME=admin
-      - DATABASE_PASSWORD=admin
+      - INFLUX_HOST=influx
+      - INFLUX_PORT=8086
+      - INFLUX_USERNAME=admin
+      - INFLUX_PASSWORD=admin
       - DATABASE_NAME=flight-bookings
       - DEBUG=True
     depends_on:
@@ -55,10 +55,8 @@ services:
 
   influx:
     image: influxdb:1.8
-    environment:
-      - INFLUXDB_ADMIN_ENABLED=true
     volumes:
-      - influxdb-storage:/var/lib/influx.db
+      - "./persisted/influxdb-storage/:/var/lib/influx.db"
     ports:
       - 8086:8086
     networks:
@@ -73,7 +71,7 @@ services:
     links:
       - influx
     volumes:
-      - grafana-storage:/var/lib/grafana
+      - "./persisted/grafana-storage/:/var/lib/grafana"
     networks:
       - internal
 
@@ -99,9 +97,3 @@ services:
 
 networks:
   internal:
-
-volumes:
-  grafana-storage:
-    external: true
-  influxdb-storage:
-    external: true

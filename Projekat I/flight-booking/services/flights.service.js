@@ -55,7 +55,9 @@ module.exports = {
                         .then(response => {
                             this.broker.emit("gateway.note", {
                                 measurement: "user-request",
-                                tags: "city-search",
+                                tags: {
+                                    group: ["city-search"]
+                                },
                                 fields: {
                                     ...ctx.params
                                 }
@@ -95,7 +97,9 @@ module.exports = {
                         .then(response => {
                             this.broker.emit("gateway.note", {
                                 measurement: "user-request",
-                                tags: "airports-search",
+                                tags: {
+                                    group: ["airports-search"]
+                                },
                                 fields: {
                                     ...ctx.params
                                 }
@@ -137,7 +141,9 @@ module.exports = {
                         .then(response => {
                             this.broker.emit("gateway.note", {
                                 measurement: "user-request",
-                                tags: "airports-search",
+                                tags: {
+                                    group: ["airports-search"]
+                                },
                                 fields: {
                                     ...ctx.params
                                 }
@@ -177,7 +183,9 @@ module.exports = {
                         .then(response => {
                             this.broker.emit("gateway.note", {
                                 measurement: "user-request",
-                                tags: "destinations",
+                                tags: {
+                                    group: ["destinations"]
+                                },
                                 fields: {
                                     ...ctx.params
                                 }
@@ -219,7 +227,9 @@ module.exports = {
                         .then(response => {
                             this.broker.emit("gateway.note", {
                                 measurement: "user-request",
-                                tags: "flight-dates",
+                                tags: {
+                                    group: ["flight-dates"]
+                                },
                                 fields: {
                                     ...ctx.params
                                 }
@@ -266,7 +276,9 @@ module.exports = {
                         .then(response => {
                             this.broker.emit("gateway.note", {
                                 measurement: "flight-search",
-                                tags: "flight-offer-search",
+                                tags: {
+                                    group: ["flight-offer-search"]
+                                },
                                 fields: {
                                     ...ctx.params
                                 }
@@ -304,7 +316,9 @@ module.exports = {
                         .then(response => {
                             this.broker.emit("gateway.note", {
                                 measurement: "user-request",
-                                tags: "airline",
+                                tags: {
+                                    group: ["airline-search"]
+                                },
                                 fields: {
                                     ...ctx.params
                                 }
@@ -349,7 +363,9 @@ module.exports = {
                         .then(response => {
                             this.broker.emit("gateway.note", {
                                 measurement: "user-request",
-                                tags: "pricing",
+                                tags: {
+                                    group: ["pricing"]
+                                },
                                 fields: {
                                     ...ctx.params
                                 }
@@ -391,7 +407,9 @@ module.exports = {
                         .then(response => {
                             this.broker.emit("gateway.note", {
                                 measurement: "user-request",
-                                tags: "booking",
+                                tags: {
+                                    group: ["booking"]
+                                },
                                 fields: {
                                     ...ctx.params
                                 }
@@ -429,7 +447,9 @@ module.exports = {
                         .then(response => {
                             this.broker.emit("gateway.note", {
                                 measurement: "user-request",
-                                tags: "booking-info",
+                                tags: {
+                                    group: ["booking-info"]
+                                },
                                 fields: {
                                     ...ctx.params
                                 }
@@ -467,7 +487,9 @@ module.exports = {
                         .then(response => {
                             this.broker.emit("gateway.note", {
                                 measurement: "user-request",
-                                tags: "booking-delete",
+                                tags: {
+                                    group: ["booking-cancel"]
+                                },
                                 fields: {
                                     ...ctx.params
                                 }
@@ -504,7 +526,9 @@ module.exports = {
                         .then(response => {
                             this.broker.emit("gateway.note", {
                                 measurement: "user-request",
-                                tags: "availabilities",
+                                tags: {
+                                    group: ["availabilities"]
+                                },
                                 fields: {
                                     ...ctx.params
                                 }
