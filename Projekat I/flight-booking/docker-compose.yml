@@ -44,10 +44,12 @@ services:
       - INFLUX_USERNAME=admin
       - INFLUX_PASSWORD=admin
       - DATABASE_NAME=flight-bookings
+      - MONGODB_URL=mongodb://admin:admin@mongo:27017/?authSource=admin
       - DEBUG=True
     depends_on:
       - influx
       - nats
+      - mongo
     networks:
       - internal
     ports:
@@ -59,6 +61,18 @@ services:
       - "./persisted/influxdb-storage/:/var/lib/influx.db"
     ports:
       - 8086:8086
+    networks:
+      - internal
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - "./persisted/mongodb-storage/:/data/db"
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
     networks:
       - internal
     

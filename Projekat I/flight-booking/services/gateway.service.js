@@ -116,10 +116,6 @@ module.exports = {
         }
     },
 
-    actions: {
-
-    },
-
     methods: {
 
     },
@@ -133,8 +129,11 @@ module.exports = {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(ctx.params)
                     }, (err, resp, body) => {
-                        if (err)
+                        if (err) {
                             this.logger.info("Error occurred!", err);
+                            throw new MoleculerError("Server side error occurred!", 500);
+                        }
+                        return body;
                     });
                 } catch (err) {
                     this.logger.info(err);

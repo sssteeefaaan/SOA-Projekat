@@ -8,6 +8,8 @@ const clientSecret = process.env.AMADEUS_CLIENT_SECRET;
 const Amadeus = require("amadeus");
 const amadeus = new Amadeus({ clientId, clientSecret });
 
+const request = require('request');
+
 const { MoleculerError } = require("moleculer").Errors
 
 /**
@@ -337,214 +339,351 @@ module.exports = {
             }
         },
 
-        // ***** UNTESTED SECTION *****
-
-        /**
-         * To get or confirm the price of a flight and obtain information about taxes and fees to be applied to the entire journey.
-         * It also retrieves ancillary information (e.g. additional bag or extra legroom seats pricing) and the payment information details requested at booking time.
-         */
-        pricing: {
+        bookTicket: {
             rest: {
                 methods: "POST",
-                path: "/offers/pricing"
+                path: "/book-a-ticket"
             },
             params: {
-                flightOffers: { type: "string" },
                 username: { type: "string", min: 2 }
             },
             async handler(ctx) {
                 try {
-                    return amadeus.shopping.flightOffers.pricing.post({
-                            data: {
-                                type: "flight-offers-pricing",
-                                flightOffers: ctx.params.flightOffers
-                            }
-                        })
-                        .then(response => {
-                            this.broker.emit("gateway.note", {
-                                measurement: "user-request",
-                                tags: {
-                                    group: ["pricing"]
+                    return await new Promise((resolve, reject) => {
+                        try {
+                            request.post(`${ process.env.INTERNAL_URL }/book-a-ticket`, {
+                                headers: {
+                                    'Content-Type': 'application/json'
                                 },
-                                fields: {
-                                    ...ctx.params
+                                body: JSON.stringify(ctx.params)
+                            }, (err, resp, body) => {
+                                if (err) {
+                                    this.logger.info("Error occurred!", err);
+                                    throw new MoleculerError("Server side error occurred!", 500);
+                                }
+                                try {
+                                    resolve(JSON.parse(body));
+                                } catch (e) {
+                                    resolve(body);
                                 }
                             });
-                            return { data: response.data, message: "Success!" };
-                        })
-                        .catch(err => {
-                            this.logger.info(err);
-                            throw new MoleculerError("Server side error occurred!", 500);
-                        });
-
+                        } catch (err) {
+                            reject(err);
+                        }
+                    });
                 } catch (err) {
                     this.logger.info(err);
-                    throw new MoleculerError("Server side error occurred!", 500);
                 }
             }
         },
 
-        /**
-         * To book the selected flight-offer and create a flight-order
-         */
-        bookOrder: {
-            rest: {
-                methods: "POST",
-                path: "/order/book"
-            },
-            params: {
-                flightOffers: { type: "string" },
-                travelers_info: { type: "string" },
-                username: { type: "string", min: 2 }
-            },
-            async handler(ctx) {
-                try {
-                    return amadeus.booking.flightOrders.post({
-                            type: "flight-order",
-                            flightOffers: ctx.params.flightOffers,
-                            travelers_info: ctx.params.travelers_info
-                        })
-                        .then(response => {
-                            this.broker.emit("gateway.note", {
-                                measurement: "user-request",
-                                tags: {
-                                    group: ["booking"]
-                                },
-                                fields: {
-                                    ...ctx.params
-                                }
-                            });
-                            return { data: response.data, message: "Success!" }
-                        })
-                        .catch(err => {
-                            this.logger.info(err);
-                            throw new MoleculerError("Server side error occurred!", 500);
-                        });
-
-                } catch (err) {
-                    this.logger.info(err);
-                    throw new MoleculerError("Server side error occurred!", 500);
-                }
-            }
-        },
-
-        /**
-         * To retrieve a flight order based on its id.
-         */
-        getOrder: {
-            rest: {
-                methods: "GET",
-                path: "/order"
-            },
-            params: {
-                orderId: { type: "string", min: 1 },
-                username: { type: "string", min: 2 }
-            },
-            async handler(ctx) {
-                try {
-                    return amadeus.booking.flightOrder
-                        .get(ctx.params.orderId)
-                        .then(response => {
-                            this.broker.emit("gateway.note", {
-                                measurement: "user-request",
-                                tags: {
-                                    group: ["booking-info"]
-                                },
-                                fields: {
-                                    ...ctx.params
-                                }
-                            });
-                            return { data: response.data, message: "Success!" }
-                        })
-                        .catch(err => {
-                            this.logger.info(err);
-                            throw new MoleculerError("Server side error occurred!", 500);
-                        });
-
-                } catch (err) {
-                    this.logger.info(err);
-                    throw new MoleculerError("Server side error occurred!", 500);
-                }
-            }
-        },
-
-        /**
-         * To cancel a flight order based on its id.
-         */
-        deleteOrder: {
+        cancelTicket: {
             rest: {
                 methods: "DELETE",
-                path: "/order/delete"
+                path: "/cancel-a-ticket"
             },
             params: {
-                orderId: { type: "string", min: 1 },
+                ticketId: { type: "string", min: 10 }
+            },
+            async handler(ctx) {
+                try {
+                    return await new Promise((resolve, reject) => {
+                        try {
+                            request.delete(`${ process.env.INTERNAL_URL }/cancel-a-ticket?ticketId=${ ctx.params.ticketId }`, (err, resp, body) => {
+                                if (err) {
+                                    this.logger.info("Error occurred!", err);
+                                    throw new MoleculerError("Server side error occurred!", 500);
+                                }
+                                try {
+                                    resolve(JSON.parse(body));
+                                } catch (e) {
+                                    resolve(body);
+                                }
+                            });
+                        } catch (err) {
+                            reject(err);
+                        }
+                    });
+                } catch (err) {
+                    this.logger.info(err);
+                }
+            }
+        },
+
+        getTicket: {
+            rest: {
+                methods: "GET",
+                path: "/get-ticket"
+            },
+            params: {
+                ticketId: { type: "string", min: 10 }
+            },
+            async handler(ctx) {
+                try {
+                    return await new Promise((resolve, reject) => {
+                        try {
+                            request.get(`${ process.env.INTERNAL_URL }/get-ticket?ticketId=${ ctx.params.ticketId }`, (err, resp, body) => {
+                                if (err) {
+                                    this.logger.info("Error occurred!", err);
+                                    throw new MoleculerError("Server side error occurred!", 500);
+                                }
+                                try {
+                                    resolve(JSON.parse(body));
+                                } catch (e) {
+                                    resolve(body);
+                                }
+                            });
+                        } catch (err) {
+                            reject(err);
+                        }
+                    });
+                } catch (err) {
+                    this.logger.info(err);
+                }
+            }
+        },
+
+        getTickets: {
+            rest: {
+                methods: "GET",
+                path: "/get-tickets"
+            },
+            params: {
                 username: { type: "string", min: 2 }
             },
             async handler(ctx) {
                 try {
-                    return amadeus.booking.flightOrder
-                        .delete(ctx.params.orderId)
-                        .then(response => {
-                            this.broker.emit("gateway.note", {
-                                measurement: "user-request",
-                                tags: {
-                                    group: ["booking-cancel"]
-                                },
-                                fields: {
-                                    ...ctx.params
+                    return await new Promise((resolve, reject) => {
+                        try {
+                            request.get(`${ process.env.INTERNAL_URL }/get-tickets?username=${ ctx.params.username }`, (err, resp, body) => {
+                                if (err) {
+                                    this.logger.info("Error occurred!", err);
+                                    throw new MoleculerError("Server side error occurred!", 500);
+                                }
+                                try {
+                                    resolve(JSON.parse(body));
+                                } catch (e) {
+                                    resolve(body);
                                 }
                             });
-                            return { data: response.data, message: "Success!" }
-                        })
-                        .catch(err => {
-                            this.logger.info(err);
-                            throw new MoleculerError("Server side error occurred!", 500);
-                        });
-
+                        } catch (err) {
+                            reject(err);
+                        }
+                    });
                 } catch (err) {
                     this.logger.info(err);
-                    throw new MoleculerError("Server side error occurred!", 500);
                 }
             }
         },
 
-        /**
-         * Get available seats in different fare classes
-         */
-        availabilities: {
-            rest: {
-                methods: "GET",
-                path: "/availabilities"
-            },
-            params: {
-                username: { type: "string", min: 3 }
-            },
-            async handler(ctx) {
-                try {
-                    return amadeus.shopping.availability.flightAvailabilities
-                        .post(ctx.params)
-                        .then(response => {
-                            this.broker.emit("gateway.note", {
-                                measurement: "user-request",
-                                tags: {
-                                    group: ["availabilities"]
-                                },
-                                fields: {
-                                    ...ctx.params
-                                }
-                            });
-                            return { data: response.data, message: "Success!" }
-                        }).catch(err => {
-                            this.logger.info(err);
-                            throw new MoleculerError("Server side error occurred!", 500);
-                        });
+        // // ***** UNTESTED SECTION *****
 
-                } catch (err) {
-                    this.logger.info(err);
-                    throw new MoleculerError("Server side error occurred!", 500);
-                }
-            }
-        },
+        // /**
+        //  * To get or confirm the price of a flight and obtain information about taxes and fees to be applied to the entire journey.
+        //  * It also retrieves ancillary information (e.g. additional bag or extra legroom seats pricing) and the payment information details requested at booking time.
+        //  */
+        // pricing: {
+        //     rest: {
+        //         methods: "POST",
+        //         path: "/offers/pricing"
+        //     },
+        //     params: {
+        //         flightOffers: { type: "string" },
+        //         username: { type: "string", min: 2 }
+        //     },
+        //     async handler(ctx) {
+        //         try {
+        //             return amadeus.shopping.flightOffers.pricing.post({
+        //                     data: {
+        //                         type: "flight-offers-pricing",
+        //                         flightOffers: ctx.params.flightOffers
+        //                     }
+        //                 })
+        //                 .then(response => {
+        //                     this.broker.emit("gateway.note", {
+        //                         measurement: "user-request",
+        //                         tags: {
+        //                             group: ["pricing"]
+        //                         },
+        //                         fields: {
+        //                             ...ctx.params
+        //                         }
+        //                     });
+        //                     return { data: response.data, message: "Success!" };
+        //                 })
+        //                 .catch(err => {
+        //                     this.logger.info(err);
+        //                     throw new MoleculerError("Server side error occurred!", 500);
+        //                 });
+
+        //         } catch (err) {
+        //             this.logger.info(err);
+        //             throw new MoleculerError("Server side error occurred!", 500);
+        //         }
+        //     }
+        // },
+
+        // /**
+        //  * To book the selected flight-offer and create a flight-order
+        //  */
+        // bookOrder: {
+        //     rest: {
+        //         methods: "POST",
+        //         path: "/order/book"
+        //     },
+        //     params: {
+        //         flightOffers: { type: "string" },
+        //         travelers_info: { type: "string" },
+        //         username: { type: "string", min: 2 }
+        //     },
+        //     async handler(ctx) {
+        //         try {
+        //             return amadeus.booking.flightOrders.post({
+        //                     type: "flight-order",
+        //                     flightOffers: ctx.params.flightOffers,
+        //                     travelers_info: ctx.params.travelers_info
+        //                 })
+        //                 .then(response => {
+        //                     this.broker.emit("gateway.note", {
+        //                         measurement: "user-request",
+        //                         tags: {
+        //                             group: ["booking"]
+        //                         },
+        //                         fields: {
+        //                             ...ctx.params
+        //                         }
+        //                     });
+        //                     return { data: response.data, message: "Success!" }
+        //                 })
+        //                 .catch(err => {
+        //                     this.logger.info(err);
+        //                     throw new MoleculerError("Server side error occurred!", 500);
+        //                 });
+
+        //         } catch (err) {
+        //             this.logger.info(err);
+        //             throw new MoleculerError("Server side error occurred!", 500);
+        //         }
+        //     }
+        // },
+
+        // /**
+        //  * To retrieve a flight order based on its id.
+        //  */
+        // getOrder: {
+        //     rest: {
+        //         methods: "GET",
+        //         path: "/order"
+        //     },
+        //     params: {
+        //         orderId: { type: "string", min: 1 },
+        //         username: { type: "string", min: 2 }
+        //     },
+        //     async handler(ctx) {
+        //         try {
+        //             return amadeus.booking.flightOrder
+        //                 .get(ctx.params.orderId)
+        //                 .then(response => {
+        //                     this.broker.emit("gateway.note", {
+        //                         measurement: "user-request",
+        //                         tags: {
+        //                             group: ["booking-info"]
+        //                         },
+        //                         fields: {
+        //                             ...ctx.params
+        //                         }
+        //                     });
+        //                     return { data: response.data, message: "Success!" }
+        //                 })
+        //                 .catch(err => {
+        //                     this.logger.info(err);
+        //                     throw new MoleculerError("Server side error occurred!", 500);
+        //                 });
+
+        //         } catch (err) {
+        //             this.logger.info(err);
+        //             throw new MoleculerError("Server side error occurred!", 500);
+        //         }
+        //     }
+        // },
+
+        // /**
+        //  * To cancel a flight order based on its id.
+        //  */
+        // deleteOrder: {
+        //     rest: {
+        //         methods: "DELETE",
+        //         path: "/order/delete"
+        //     },
+        //     params: {
+        //         orderId: { type: "string", min: 1 },
+        //         username: { type: "string", min: 2 }
+        //     },
+        //     async handler(ctx) {
+        //         try {
+        //             return amadeus.booking.flightOrder
+        //                 .delete(ctx.params.orderId)
+        //                 .then(response => {
+        //                     this.broker.emit("gateway.note", {
+        //                         measurement: "user-request",
+        //                         tags: {
+        //                             group: ["booking-cancel"]
+        //                         },
+        //                         fields: {
+        //                             ...ctx.params
+        //                         }
+        //                     });
+        //                     return { data: response.data, message: "Success!" }
+        //                 })
+        //                 .catch(err => {
+        //                     this.logger.info(err);
+        //                     throw new MoleculerError("Server side error occurred!", 500);
+        //                 });
+
+        //         } catch (err) {
+        //             this.logger.info(err);
+        //             throw new MoleculerError("Server side error occurred!", 500);
+        //         }
+        //     }
+        // },
+
+        // /**
+        //  * Get available seats in different fare classes
+        //  */
+        // availabilities: {
+        //     rest: {
+        //         methods: "GET",
+        //         path: "/availabilities"
+        //     },
+        //     params: {
+        //         username: { type: "string", min: 3 }
+        //     },
+        //     async handler(ctx) {
+        //         try {
+        //             return amadeus.shopping.availability.flightAvailabilities
+        //                 .post(ctx.params)
+        //                 .then(response => {
+        //                     this.broker.emit("gateway.note", {
+        //                         measurement: "user-request",
+        //                         tags: {
+        //                             group: ["availabilities"]
+        //                         },
+        //                         fields: {
+        //                             ...ctx.params
+        //                         }
+        //                     });
+        //                     return { data: response.data, message: "Success!" }
+        //                 }).catch(err => {
+        //                     this.logger.info(err);
+        //                     throw new MoleculerError("Server side error occurred!", 500);
+        //                 });
+
+        //         } catch (err) {
+        //             this.logger.info(err);
+        //             throw new MoleculerError("Server side error occurred!", 500);
+        //         }
+        //     }
+        // },
     },
 
     /**
