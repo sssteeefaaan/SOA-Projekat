@@ -1,14 +1,17 @@
 "use strict";
 
-require('dotenv').config({ path: "docker-compose.env" });
+require("dotenv").config({ path: "docker-compose.env" });
 
 const clientId = process.env.AMADEUS_CLIENT_ID;
 const clientSecret = process.env.AMADEUS_CLIENT_SECRET;
 
-const amadeus = new(require('amadeus'))({ clientId, clientSecret });
+const Amadeus = require("amadeus");
+const amadeus = new Amadeus({ clientId, clientSecret });
+
+const { MoleculerError } = require("moleculer").Errors
 
 /**
- * @typedef {import('moleculer').Context} Context Moleculer's Context
+ * @typedef {import("moleculer").Context} Context Moleculer"s Context
  */
 
 module.exports = {
@@ -32,133 +35,123 @@ module.exports = {
     actions: {
 
         /**
-         * To retrieve a flight order based on its id.
+         * Returns a list of cities matching a given keyword.
          */
-        getOrder: {
+        getCities: {
             rest: {
-                method: 'GET',
-                path: '/order'
+                methods: "GET",
+                path: "/cities"
             },
             params: {
-                orderId: "string"
+                keyword: { type: "string", min: 1 },
+                username: { type: "string", min: 2 }
             },
             async handler(ctx) {
                 try {
-                    if (!ctx.params.orderId)
-                        throw "orderId required!";
-                    return amadeus.booking.flightOrder
-                        .get(ctx.params.orderId)
-                        .then(response => ({ data: response.data, message: "Success!" }))
-                        .catch(err => ({ data: {}, message: `Error occurred! ${err}` }));
-
-                } catch (err) {
-                    return { data: {}, message: `Error occurred! ${err}` };
-                }
-            }
-        },
-
-        /**
-         * To cancel a flight order based on its id.
-         */
-        deleteOrder: {
-            rest: {
-                method: "DELETE",
-                path: '/order/delete'
-            },
-            params: {
-                orderId: "string"
-            },
-            async handler(ctx) {
-                try {
-                    if (!ctx.params.orderId)
-                        throw "orderId required!";
-                    return amadeus.booking.flightOrder
-                        .delete(ctx.params.orderId)
-                        .then(response => ({ data: response.data, message: "Success!" }))
-                        .catch(err => ({ data: {}, message: `Error occurred! ${err}` }));
-
-                } catch (err) {
-                    return { data: {}, message: `Error occurred! ${err}` };
-                }
-            }
-        },
-
-        /**
-         * To book the selected flight-offer and create a flight-order
-         */
-        bookOrder: {
-            rest: {
-                method: "POST",
-                path: '/order/book'
-            },
-            params: {
-                flightOffers: "string",
-                travelers_info: "string"
-            },
-            async handler(ctx) {
-                try {
-                    if (!ctx.params.flightOffers)
-                        throw "flightOffers required!";
-
-                    if (!ctx.params.travelers_info)
-                        throw "travelers_info required!";
-
-                    return amadeus.booking.flightOrders.post({
-                            'type': 'flight-order',
-                            'flightOffers': ctx.params.flightOffers,
-                            'travelers_info': ctx.params.travelers_info
+                    return amadeus.referenceData.locations.get({
+                            keyword: ctx.params.keyword,
+                            subType: Amadeus.location.city
                         })
-                        .then(response => ({ data: response.data, message: "Success!" }))
-                        .catch(err => ({ data: {}, message: `Error occurred! ${err}` }));
+                        .then(response => {
+                            this.broker.emit("gateway.note", {
+                                measurement: "user-request",
+                                tags: "city-search",
+                                fields: {
+                                    ...ctx.params
+                                }
+                            });
+                            return { data: response.data, message: "Success!" };
+                        })
+                        .catch(err => {
+                            this.logger.info(err);
+                            throw new MoleculerError("Server side error occurred!", 500);
+                        });
 
                 } catch (err) {
-                    return { data: {}, message: `Error occurred! ${err}` };
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
                 }
             }
         },
 
         /**
-         * Get available seats in different fare classes
+         * Returns a list of cities matching a given keyword.
          */
-        availabilities: {
+        getAirports: {
             rest: {
-                method: 'GET',
-                path: '/availabilities'
-            },
-            async handler(ctx) {
-                try {
-                    return amadeus.shopping.availability.flightAvailabilities
-                        .post(ctx.params)
-                        .then(response => ({ data: response.data, message: "Success!" }))
-                        .catch(err => ({ data: {}, message: `Error occurred! ${err}` }));
-
-                } catch (err) {
-                    return { data: {}, message: `Error occurred! ${err}` };
-                }
-            }
-        },
-
-        /**
-         * Find the cheapest flight dates from an origin to a destination.
-         */
-        dates: {
-            rest: {
-                method: 'GET',
-                path: '/dates'
+                methods: "GET",
+                path: "/airports-keyword"
             },
             params: {
-                origin: "string",
-                destination: "string"
+                keyword: { type: "string", min: 1 },
+                username: { type: "string", min: 2 }
             },
             async handler(ctx) {
                 try {
-                    return amadeus.shopping.flightDates
-                        .get(ctx.params)
-                        .then(response => ({ data: response.data, message: "Success!" }))
-                        .catch(err => ({ data: {}, message: `Error occurred! ${err}` }));
+                    return amadeus.referenceData.locations.get({
+                            keyword: ctx.params.keyword,
+                            subType: Amadeus.location.airport
+                        })
+                        .then(response => {
+                            this.broker.emit("gateway.note", {
+                                measurement: "user-request",
+                                tags: "airports-search",
+                                fields: {
+                                    ...ctx.params
+                                }
+                            });
+                            return { data: response.data, message: "Success!" }
+                        })
+                        .catch(err => {
+                            this.logger.info(err);
+                            throw new MoleculerError("Server side error occurred!", 500);
+                        });
 
                 } catch (err) {
-                    return { data: {}, message: `Error occurred! ${err}` };
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
+                }
+            }
+        },
+
+
+        /**
+         * Returns a list of relevant airports near to a given point.
+         */
+        findAirports: {
+            rest: {
+                methods: "GET",
+                path: "/airports-location"
+            },
+            params: {
+                longitude: { type: "string", min: 1 },
+                latitude: { type: "string", min: 1 },
+                username: { type: "string", min: 2 }
+            },
+            async handler(ctx) {
+                try {
+                    return amadeus.referenceData.locations.airports.get({
+                            longitude: ctx.params.longitude,
+                            latitude: ctx.params.latitude
+                        })
+                        .then(response => {
+                            this.broker.emit("gateway.note", {
+                                measurement: "user-request",
+                                tags: "airports-search",
+                                fields: {
+                                    ...ctx.params
+                                }
+                            });
+                            return { data: response.data, message: "Success!" }
+                        })
+                        .catch(err => {
+                            this.logger.info(err);
+                            throw new MoleculerError("Server side error occurred!", 500);
+                        });
+
+                } catch (err) {
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
                 }
             }
         },
@@ -168,21 +161,79 @@ module.exports = {
          */
         destinations: {
             rest: {
-                method: 'GET',
-                path: '/destinations'
+                methods: "GET",
+                path: "/destinations"
             },
             params: {
-                origin: "string"
+                origin: { type: "string", min: 3, max: 3 },
+                username: { type: "string", min: 2 }
             },
             async handler(ctx) {
                 try {
                     return amadeus.shopping.flightDestinations
-                        .get(ctx.params)
-                        .then(response => ({ data: response.data, message: "Success!" }))
-                        .catch(err => ({ data: {}, message: `Error occurred! ${err}` }));
+                        .get({
+                            origin: ctx.params.origin
+                        })
+                        .then(response => {
+                            this.broker.emit("gateway.note", {
+                                measurement: "user-request",
+                                tags: "destinations",
+                                fields: {
+                                    ...ctx.params
+                                }
+                            });
+                            return { data: response.data, message: "Success!" };
+                        })
+                        .catch(err => {
+                            this.logger.info(err);
+                            throw new MoleculerError("Server side error occurred!", 500);
+                        });
 
                 } catch (err) {
-                    return { data: {}, message: `Error occurred! ${err}` };
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
+                }
+            }
+        },
+
+        /**
+         * Find the cheapest flight dates from an origin to a destination.
+         */
+        dates: {
+            rest: {
+                methods: "GET",
+                path: "/dates"
+            },
+            params: {
+                origin: { type: "string", min: 3, max: 3 },
+                destination: { type: "string", min: 3, max: 3 },
+                username: { type: "string", min: 2 }
+            },
+            async handler(ctx) {
+                try {
+                    return amadeus.shopping.flightDates
+                        .get({
+                            origin: ctx.params.origin,
+                            destination: ctx.params.destination
+                        })
+                        .then(response => {
+                            this.broker.emit("gateway.note", {
+                                measurement: "user-request",
+                                tags: "flight-dates",
+                                fields: {
+                                    ...ctx.params
+                                }
+                            });
+                            return { data: response.data, message: "Success!" };
+                        })
+                        .catch(err => {
+                            this.logger.info(err);
+                            throw new MoleculerError("Server side error occurred!", 500);
+                        });
+
+                } catch (err) {
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
                 }
             }
         },
@@ -192,35 +243,87 @@ module.exports = {
          */
         search: {
             rest: {
-                method: 'GET',
-                path: '/offers/search'
+                methods: "GET",
+                path: "/offers/search"
             },
             params: {
-                originLocationCode: "string",
-                destinationLocationCode: "string",
-                departureDate: "string",
-                adults: "string"
+                originLocationCode: { type: "string", min: 3, max: 3 },
+                destinationLocationCode: { type: "string", min: 3, max: 3 },
+                departureDate: { type: "string", min: 2 },
+                adults: { type: "string", min: 1 },
+                username: { type: "string", min: 2 }
             },
+            timeout: 0,
             async handler(ctx) {
                 try {
-                    if (!(ctx.params.originLocationCode && ctx.params.destinationLocationCode && ctx.params.departureDate && ctx.params.adults))
-                        return { data: {}, message: "Invalid parameters!" };
-
                     return amadeus.shopping.flightOffersSearch
-                        .get(ctx.params)
-                        .then(function(response) {
+                        .get({
+                            originLocationCode: ctx.params.originLocationCode,
+                            destinationLocationCode: ctx.params.destinationLocationCode,
+                            departureDate: ctx.params.departureDate,
+                            adults: ctx.params.adults
+                        })
+                        .then(response => {
+                            this.broker.emit("gateway.note", {
+                                measurement: "flight-search",
+                                tags: "flight-offer-search",
+                                fields: {
+                                    ...ctx.params
+                                }
+                            }, { timeout: 0 });
                             return { data: response.data, message: "Success!" };
                         })
-                        .catch(function(responseError) {
-                            return { data: {}, message: `Error occurred! ${responseError.code}` };
+                        .catch(err => {
+                            this.logger.info(err);
+                            throw new MoleculerError("Server side error occurred!", 500);
                         });
                 } catch (err) {
-                    console.log(err);
-                    return { data: {}, message: `Error occurred! ${err}` };
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
                 }
             }
         },
 
+        /**
+         * Returns the airline info
+         */
+        getAirline: {
+            rest: {
+                methods: "GET",
+                path: "/airlines"
+            },
+            params: {
+                airlineCodes: { type: "string", min: 2 },
+                username: { type: "string", min: 2 }
+            },
+            async handler(ctx) {
+                try {
+                    return amadeus.referenceData.airlines.get({
+                            airlineCodes: ctx.params.airlineCodes
+                        })
+                        .then(response => {
+                            this.broker.emit("gateway.note", {
+                                measurement: "user-request",
+                                tags: "airline",
+                                fields: {
+                                    ...ctx.params
+                                }
+                            });
+                            return { data: response.data, message: "Success!" };
+                        })
+                        .catch(err => {
+                            this.logger.info(err);
+                            throw new MoleculerError("Server side error occurred!", 500);
+                        });
+
+                } catch (err) {
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
+                }
+            }
+        },
+
+        // ***** UNTESTED SECTION *****
 
         /**
          * To get or confirm the price of a flight and obtain information about taxes and fees to be applied to the entire journey.
@@ -228,28 +331,196 @@ module.exports = {
          */
         pricing: {
             rest: {
-                method: 'GET',
-                path: '/offers/pricing'
+                methods: "POST",
+                path: "/offers/pricing"
             },
             params: {
-                flightOffers: "string"
+                flightOffers: { type: "string" },
+                username: { type: "string", min: 2 }
             },
             async handler(ctx) {
                 try {
                     return amadeus.shopping.flightOffers.pricing.post({
-                            'data': {
-                                'type': 'flight-offers-pricing',
-                                'flightOffers': ctx.params.flightOffers
+                            data: {
+                                type: "flight-offers-pricing",
+                                flightOffers: ctx.params.flightOffers
                             }
                         })
-                        .then(response => ({ data: response.data, message: "Success!" }))
-                        .catch(err => ({ data: {}, message: `Error occurred! ${err}` }));
+                        .then(response => {
+                            this.broker.emit("gateway.note", {
+                                measurement: "user-request",
+                                tags: "pricing",
+                                fields: {
+                                    ...ctx.params
+                                }
+                            });
+                            return { data: response.data, message: "Success!" };
+                        })
+                        .catch(err => {
+                            this.logger.info(err);
+                            throw new MoleculerError("Server side error occurred!", 500);
+                        });
 
                 } catch (err) {
-                    return { data: {}, message: `Error occurred! ${err}` };
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
                 }
             }
-        }
+        },
+
+        /**
+         * To book the selected flight-offer and create a flight-order
+         */
+        bookOrder: {
+            rest: {
+                methods: "POST",
+                path: "/order/book"
+            },
+            params: {
+                flightOffers: { type: "string" },
+                travelers_info: { type: "string" },
+                username: { type: "string", min: 2 }
+            },
+            async handler(ctx) {
+                try {
+                    return amadeus.booking.flightOrders.post({
+                            type: "flight-order",
+                            flightOffers: ctx.params.flightOffers,
+                            travelers_info: ctx.params.travelers_info
+                        })
+                        .then(response => {
+                            this.broker.emit("gateway.note", {
+                                measurement: "user-request",
+                                tags: "booking",
+                                fields: {
+                                    ...ctx.params
+                                }
+                            });
+                            return { data: response.data, message: "Success!" }
+                        })
+                        .catch(err => {
+                            this.logger.info(err);
+                            throw new MoleculerError("Server side error occurred!", 500);
+                        });
+
+                } catch (err) {
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
+                }
+            }
+        },
+
+        /**
+         * To retrieve a flight order based on its id.
+         */
+        getOrder: {
+            rest: {
+                methods: "GET",
+                path: "/order"
+            },
+            params: {
+                orderId: { type: "string", min: 1 },
+                username: { type: "string", min: 2 }
+            },
+            async handler(ctx) {
+                try {
+                    return amadeus.booking.flightOrder
+                        .get(ctx.params.orderId)
+                        .then(response => {
+                            this.broker.emit("gateway.note", {
+                                measurement: "user-request",
+                                tags: "booking-info",
+                                fields: {
+                                    ...ctx.params
+                                }
+                            });
+                            return { data: response.data, message: "Success!" }
+                        })
+                        .catch(err => {
+                            this.logger.info(err);
+                            throw new MoleculerError("Server side error occurred!", 500);
+                        });
+
+                } catch (err) {
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
+                }
+            }
+        },
+
+        /**
+         * To cancel a flight order based on its id.
+         */
+        deleteOrder: {
+            rest: {
+                methods: "DELETE",
+                path: "/order/delete"
+            },
+            params: {
+                orderId: { type: "string", min: 1 },
+                username: { type: "string", min: 2 }
+            },
+            async handler(ctx) {
+                try {
+                    return amadeus.booking.flightOrder
+                        .delete(ctx.params.orderId)
+                        .then(response => {
+                            this.broker.emit("gateway.note", {
+                                measurement: "user-request",
+                                tags: "booking-delete",
+                                fields: {
+                                    ...ctx.params
+                                }
+                            });
+                            return { data: response.data, message: "Success!" }
+                        })
+                        .catch(err => {
+                            this.logger.info(err);
+                            throw new MoleculerError("Server side error occurred!", 500);
+                        });
+
+                } catch (err) {
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
+                }
+            }
+        },
+
+        /**
+         * Get available seats in different fare classes
+         */
+        availabilities: {
+            rest: {
+                methods: "GET",
+                path: "/availabilities"
+            },
+            params: {
+                username: { type: "string", min: 3 }
+            },
+            async handler(ctx) {
+                try {
+                    return amadeus.shopping.availability.flightAvailabilities
+                        .post(ctx.params)
+                        .then(response => {
+                            this.broker.emit("gateway.note", {
+                                measurement: "user-request",
+                                tags: "availabilities",
+                                fields: {
+                                    ...ctx.params
+                                }
+                            });
+                            return { data: response.data, message: "Success!" }
+                        }).catch(err => {
+                            this.logger.info(err);
+                            throw new MoleculerError("Server side error occurred!", 500);
+                        });
+
+                } catch (err) {
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
+                }
+            }
+        },
     },
 
     /**

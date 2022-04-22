@@ -1,6 +1,9 @@
 "use strict";
 
+require('dotenv').config({ path: "docker-compose.env" });
+
 const ApiGateway = require("moleculer-web");
+const request = require('request');
 
 /**
  * @typedef {import('moleculer').Context} Context Moleculer's Context
@@ -24,7 +27,7 @@ module.exports = {
         use: [],
 
         routes: [{
-            path: "/gateway",
+            path: "/api",
 
             whitelist: [
                 "**"
@@ -113,5 +116,30 @@ module.exports = {
         }
     },
 
-    methods: {}
+    actions: {
+
+    },
+
+    methods: {
+
+    },
+
+    events: {
+        "gateway.note": {
+            group: "communication",
+            async handler(ctx) {
+                try {
+                    request.post(process.env.INTERNAL_URL + "/writeDB", {
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(ctx.params)
+                    }, (err, resp, body) => {
+                        if (err)
+                            this.logger.info("Error occurred!", err);
+                    });
+                } catch (err) {
+                    this.logger.info(err);
+                }
+            }
+        }
+    }
 };

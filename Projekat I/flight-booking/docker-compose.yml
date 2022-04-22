@@ -12,6 +12,7 @@ services:
       PORT: 3000
     depends_on:
       - nats
+      - internal_api
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api-gw.rule=PathPrefix(`/`)"
@@ -38,6 +39,12 @@ services:
     image: internal_api
     environment:
       - PYTHONUNBUFFERED=1
+      - DATABASE_HOSTNAME=influx
+      - DATABASE_PORT=8086
+      - DATABASE_USERNAME=admin
+      - DATABASE_PASSWORD=admin
+      - DATABASE_NAME=flight-bookings
+      - DEBUG=True
     depends_on:
       - influx
       - nats
@@ -51,7 +58,7 @@ services:
     environment:
       - INFLUXDB_ADMIN_ENABLED=true
     volumes:
-      - influxdata:/var/lib/influx.db
+      - influxdb-storage:/var/lib/influx.db
     ports:
       - 8086:8086
     networks:
@@ -66,7 +73,7 @@ services:
     links:
       - influx
     volumes:
-      - influxdata:/var/lib/influx.db
+      - grafana-storage:/var/lib/grafana
     networks:
       - internal
 
@@ -94,4 +101,7 @@ networks:
   internal:
 
 volumes:
-  influxdata:
+  grafana-storage:
+    external: true
+  influxdb-storage:
+    external: true
