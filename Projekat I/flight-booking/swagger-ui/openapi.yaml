@@ -1,0 +1,234 @@
+openapi: 3.0.3
+info:
+  title: Flight bookings API
+  description: |
+    This API is used to get flight booking information from Amadeus public API and also book flight tickets online.
+  version: "1.0"
+servers:
+- url: "http://{hostname}:{port}/api"
+  variables:
+    hostname:
+      description: Hostname part of the server url.
+      enum:
+      - localhost
+      - 127.0.0.1
+      default: localhost
+    port:
+      description: Port number of the server url.
+      default: "3000"
+paths:
+  /flights/cities:
+    get:
+      summary: Get city's code
+      description: Get codes for cities containing a given keyword
+      operationId: flightsCitiesGET
+      parameters:
+      - name: keyword
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          minimum: 1
+          type: string
+        example: BG
+      - name: username
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          minimum: 3
+          type: string
+        example: Stef
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+      x-swagger-router-controller: Default
+components:
+  schemas:
+    inline_response_200:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Success!
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                example: location
+              subType:
+                type: string
+                example: CITY
+              name:
+                type: string
+                example: BANGOR
+              detailedName:
+                type: string
+                example: ANGOR/ME/US:BANGOR INTL
+              id:
+                type: string
+                example: CBGR
+              self:
+                type: object
+                properties:
+                  href:
+                    type: string
+                    example: https://test.api.amadeus.com/v1/reference-data/locations/CBGR
+                  methods:
+                    type: array
+                    items:
+                      type: string
+                      example: GET
+                example:
+                  methods:
+                  - GET
+                  - GET
+                  href: https://test.api.amadeus.com/v1/reference-data/locations/CBGR
+              timeZoneOffset:
+                type: string
+                example: -04:00
+              iataCode:
+                type: string
+                example: BGR
+              geoCode:
+                type: object
+                properties:
+                  latitude:
+                    type: number
+                    example: 44.8075
+                  longitude:
+                    type: number
+                    example: -68.82806
+                example:
+                  latitude: 44.8075
+                  longitude: -68.82806
+              address:
+                type: object
+                properties:
+                  cityName:
+                    type: string
+                    example: BANGOR
+                  cityCode:
+                    type: string
+                    example: BGR
+                  countryName:
+                    type: string
+                    example: UNITED STATES OF AMERICA
+                  countryCode:
+                    type: string
+                    example: US
+                  stateCode:
+                    type: string
+                    example: ME
+                  regionCode:
+                    type: string
+                    example: NAMER
+                example:
+                  regionCode: NAMER
+                  cityName: BANGOR
+                  cityCode: BGR
+                  countryCode: US
+                  stateCode: ME
+                  countryName: UNITED STATES OF AMERICA
+              analytics:
+                type: object
+                properties:
+                  travelers:
+                    type: object
+                    properties:
+                      score:
+                        type: number
+                        example: 1
+                    example:
+                      score: 1
+                example:
+                  travelers:
+                    score: 1
+            example:
+              analytics:
+                travelers:
+                  score: 1
+              iataCode: BGR
+              address:
+                regionCode: NAMER
+                cityName: BANGOR
+                cityCode: BGR
+                countryCode: US
+                stateCode: ME
+                countryName: UNITED STATES OF AMERICA
+              timeZoneOffset: -04:00
+              name: BANGOR
+              self:
+                methods:
+                - GET
+                - GET
+                href: https://test.api.amadeus.com/v1/reference-data/locations/CBGR
+              geoCode:
+                latitude: 44.8075
+                longitude: -68.82806
+              subType: CITY
+              detailedName: ANGOR/ME/US:BANGOR INTL
+              id: CBGR
+              type: location
+      example:
+        data:
+        - analytics:
+            travelers:
+              score: 1
+          iataCode: BGR
+          address:
+            regionCode: NAMER
+            cityName: BANGOR
+            cityCode: BGR
+            countryCode: US
+            stateCode: ME
+            countryName: UNITED STATES OF AMERICA
+          timeZoneOffset: -04:00
+          name: BANGOR
+          self:
+            methods:
+            - GET
+            - GET
+            href: https://test.api.amadeus.com/v1/reference-data/locations/CBGR
+          geoCode:
+            latitude: 44.8075
+            longitude: -68.82806
+          subType: CITY
+          detailedName: ANGOR/ME/US:BANGOR INTL
+          id: CBGR
+          type: location
+        - analytics:
+            travelers:
+              score: 1
+          iataCode: BGR
+          address:
+            regionCode: NAMER
+            cityName: BANGOR
+            cityCode: BGR
+            countryCode: US
+            stateCode: ME
+            countryName: UNITED STATES OF AMERICA
+          timeZoneOffset: -04:00
+          name: BANGOR
+          self:
+            methods:
+            - GET
+            - GET
+            href: https://test.api.amadeus.com/v1/reference-data/locations/CBGR
+          geoCode:
+            latitude: 44.8075
+            longitude: -68.82806
+          subType: CITY
+          detailedName: ANGOR/ME/US:BANGOR INTL
+          id: CBGR
+          type: location
+        message: Success!

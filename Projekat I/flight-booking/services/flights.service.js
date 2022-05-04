@@ -10,7 +10,7 @@ const amadeus = new Amadeus({ clientId, clientSecret });
 
 const request = require('request');
 
-const { MoleculerError } = require("moleculer").Errors
+const { MoleculerError } = require("moleculer").Errors;
 
 /**
  * @typedef {import("moleculer").Context} Context Moleculer"s Context
@@ -50,6 +50,7 @@ module.exports = {
             },
             async handler(ctx) {
                 try {
+                    console.log("Params:", ctx.params);
                     return amadeus.referenceData.locations.get({
                             keyword: ctx.params.keyword,
                             subType: Amadeus.location.city

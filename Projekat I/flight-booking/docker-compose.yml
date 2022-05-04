@@ -108,6 +108,15 @@ services:
     networks:
       - internal
       - default
+  
+  swagger-ui:
+   image: swaggerapi/swagger-ui
+   ports:
+      - "80:8080"
+   volumes:
+      - "./swagger-ui:/usr/share/nginx/html/doc"
+   environment:
+      API_URL: doc/openapi.yaml
 
 networks:
   internal:

@@ -5,6 +5,8 @@ require('dotenv').config({ path: "docker-compose.env" });
 const ApiGateway = require("moleculer-web");
 const request = require('request');
 
+const { MoleculerError } = require("moleculer").Errors;
+
 /**
  * @typedef {import('moleculer').Context} Context Moleculer's Context
  * @typedef {import('http').IncomingMessage} IncomingRequest Incoming HTTP Request
@@ -113,6 +115,11 @@ module.exports = {
 
             // Options to `server-static` module
             options: {}
+        },
+
+        cors: {
+            methods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
+            origin: "*",
         }
     },
 
