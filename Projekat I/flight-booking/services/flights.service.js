@@ -80,7 +80,7 @@ module.exports = {
         },
 
         /**
-         * Returns a list of cities matching a given keyword.
+         * Returns a list of airports matching a given keyword.
          */
         getAirports: {
             rest: {
@@ -222,6 +222,7 @@ module.exports = {
             },
             async handler(ctx) {
                 try {
+                    this.logger.info("PARAMS", ctx.params);
                     return amadeus.shopping.flightDates
                         .get({
                             origin: ctx.params.origin,
@@ -358,15 +359,18 @@ module.exports = {
                                 },
                                 body: JSON.stringify(ctx.params)
                             }, (err, resp, body) => {
-                                if (err) {
+                                if (resp.statusCode != 200) {
                                     this.logger.info("Error occurred!", err);
-                                    throw new MoleculerError("Server side error occurred!", 500);
+                                    reject(resp.statusMessage);
                                 }
-                                try {
-                                    resolve(JSON.parse(body));
-                                } catch (e) {
-                                    resolve(body);
+                                let response;
+                                try{
+                                    response = JSON.parse(body);
                                 }
+                                catch(e){
+                                    response = body;
+                                }
+                                resolve({ message: "Success!", data: response });
                             });
                         } catch (err) {
                             reject(err);
@@ -374,6 +378,7 @@ module.exports = {
                     });
                 } catch (err) {
                     this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
                 }
             }
         },
@@ -391,15 +396,18 @@ module.exports = {
                     return await new Promise((resolve, reject) => {
                         try {
                             request.delete(`${ process.env.INTERNAL_URL }/cancel-a-ticket?ticketId=${ ctx.params.ticketId }`, (err, resp, body) => {
-                                if (err) {
+                                if (resp.statusCode != 200) {
                                     this.logger.info("Error occurred!", err);
-                                    throw new MoleculerError("Server side error occurred!", 500);
+                                    reject(resp.statusMessage);
                                 }
-                                try {
-                                    resolve(JSON.parse(body));
-                                } catch (e) {
-                                    resolve(body);
+                                let response;
+                                try{
+                                    response = JSON.parse(body);
                                 }
+                                catch(e){
+                                    response = body;
+                                }
+                                resolve({ message: "Success!", data: response });
                             });
                         } catch (err) {
                             reject(err);
@@ -407,6 +415,7 @@ module.exports = {
                     });
                 } catch (err) {
                     this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
                 }
             }
         },
@@ -424,15 +433,18 @@ module.exports = {
                     return await new Promise((resolve, reject) => {
                         try {
                             request.get(`${ process.env.INTERNAL_URL }/get-ticket?ticketId=${ ctx.params.ticketId }`, (err, resp, body) => {
-                                if (err) {
+                                if (resp.statusCode != 200) {
                                     this.logger.info("Error occurred!", err);
-                                    throw new MoleculerError("Server side error occurred!", 500);
+                                    reject(resp.statusMessage);
                                 }
-                                try {
-                                    resolve(JSON.parse(body));
-                                } catch (e) {
-                                    resolve(body);
+                                let response;
+                                try{
+                                    response = JSON.parse(body);
                                 }
+                                catch(e){
+                                    response = body;
+                                }
+                                resolve({ message: "Success!", data: response });
                             });
                         } catch (err) {
                             reject(err);
@@ -440,6 +452,7 @@ module.exports = {
                     });
                 } catch (err) {
                     this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
                 }
             }
         },
@@ -457,15 +470,18 @@ module.exports = {
                     return await new Promise((resolve, reject) => {
                         try {
                             request.get(`${ process.env.INTERNAL_URL }/get-tickets?username=${ ctx.params.username }`, (err, resp, body) => {
-                                if (err) {
+                                if (resp.statusCode != 200) {
                                     this.logger.info("Error occurred!", err);
-                                    throw new MoleculerError("Server side error occurred!", 500);
+                                    reject(resp.statusMessage);
                                 }
-                                try {
-                                    resolve(JSON.parse(body));
-                                } catch (e) {
-                                    resolve(body);
+                                let response;
+                                try{
+                                    response = JSON.parse(body);
                                 }
+                                catch(e){
+                                    response = body;
+                                }
+                                resolve({ message: "Success!", data: response });
                             });
                         } catch (err) {
                             reject(err);
@@ -473,6 +489,7 @@ module.exports = {
                     });
                 } catch (err) {
                     this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
                 }
             }
         },

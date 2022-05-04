@@ -33,17 +33,13 @@ def writeDB():
     try:
         if not request.is_json:
             raise Exception("Request must be application/json!")
-        
         data = request.get_json()
-        
         if not influxClient.write_points(points=[{
             "time": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
             **data
         }]):
             raise Exception("Writting to database was unsuccessful!")
-        
         return Response("Ok", status=200)
-    
     except Exception as e:
         return Response(handleError(e), status=500)
     
@@ -53,23 +49,22 @@ def bookTicket():
     try:
         if not request.is_json:
             raise Exception("Request must be application/json!")
-        
-        result = mongoDatabase.tickets.insert_one(request.get_json())
-        
-        return Response(dumps({"_id": result.inserted_id}), status=200, mimetype="json")
-    
+        data = request.get_json()
+        result = mongoDatabase.tickets.insert_one(data)
+        data.update({ "_id": str(result.inserted_id) })
+        return Response(dumps(data), status=200, mimetype="json")
     except Exception as e:
-        return handleError(e)
+        return Response(handleError(e), status=500)
     
     
 @app.route('/cancel-a-ticket', methods=["DELETE"])
 def cancelTicket():
     try:
         ticketId = ObjectId(request.args.get('ticketId'))
-        result = mongoDatabase.tickets.delete_one({'_id': ticketId })
-        if result.deleted_count != 1:
+        result = mongoDatabase.tickets.find_one_and_delete({'_id': ticketId })
+        if not result:
             raise Exception("Ticket cancellation failed!")
-        return Response("Ok", status=200, mimetype="text")
+        return Response(dumps(result), status=200, mimetype="json")
     except Exception as e:
         return Response(handleError(e), status=500)
     
@@ -79,7 +74,6 @@ def getTickets():
     try:
         result = mongoDatabase.tickets.find({"username": request.args.get('username')}).skip(request.args.get('skip', 0)).limit(request.args.get('limit', 100))
         return Response(dumps(result), status=200, mimetype="json")
-    
     except Exception as e:
         return Response(handleError(e), status=500)
     
@@ -100,7 +94,6 @@ def get():
     try:
         print("Here i am")
         return Response("Ok", status=200)
-    
     except Exception as e:
         return Response(handleError(e), status=500)
 

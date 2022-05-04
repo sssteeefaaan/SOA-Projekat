@@ -20,8 +20,12 @@ paths:
   /flights/cities:
     get:
       summary: Get city's code
-      description: Get codes for cities containing a given keyword
-      operationId: flightsCitiesGET
+      description: Returns a list of cities matching a given keyword.
+      operationId: search_cities
+      tags:
+        - flights
+        - search
+        - cities
       parameters:
       - name: keyword
         in: query
@@ -47,13 +51,719 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_200'
-      x-swagger-router-controller: Default
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        subType:
+                          type: string
+                        name:
+                          type: string
+                        detailedName:
+                          type: string
+                        id:
+                          type: string
+                        self:
+                          type: object
+                          properties:
+                            href:
+                              type: string
+                            methods:
+                              type: array
+                              items:
+                                type: string
+                        timeZoneOffset:
+                          type: string
+                        iataCode:
+                          type: string
+                        geoCode:
+                          type: object
+                          properties:
+                            latitude:
+                              type: number
+                            longitude:
+                              type: number
+                        address:
+                          type: object
+                          properties:
+                            cityName:
+                              type: string
+                            cityCode:
+                              type: string
+                            countryName:
+                              type: string
+                            countryCode:
+                              type: string
+                            stateCode:
+                              type: string
+                            regionCode:
+                              type: string
+                        analytics:
+                          type: object
+                          properties:
+                            travelers:
+                              type: object
+                              properties:
+                                score:
+                                  type: number
+                example:
+                  message: Success!
+                  data:
+                  - analytics:
+                      travelers:
+                        score: 1
+                    iataCode: BGR
+                    address:
+                      regionCode: NAMER
+                      cityName: BANGOR
+                      cityCode: BGR
+                      countryCode: US
+                      stateCode: ME
+                      countryName: UNITED STATES OF AMERICA
+                    timeZoneOffset: -04:00
+                    name: BANGOR
+                    self:
+                      methods:
+                      - GET
+                      href: https://test.api.amadeus.com/v1/reference-data/locations/CBGR
+                    geoCode:
+                      latitude: 44.8075
+                      longitude: -68.82806
+                    subType: CITY
+                    detailedName: ANGOR/ME/US:BANGOR INTL
+                    id: CBGR
+                    type: location
+  /flights/airports-keyword:
+    get:
+      summary: Get airports
+      description: Returns a list of airports matching a given keyword.
+      operationId: search_airports
+      tags:
+        - flights
+        - search
+        - airports
+      parameters:
+        - name: keyword
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            minimum: 1
+            type: string
+          example: BG
+        - name: username
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            minimum: 3
+            type: string
+          example: Stef
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        subType:
+                          type: string
+                        name:
+                          type: string
+                        detailedName:
+                          type: string
+                        id:
+                          type: string
+                        self:
+                          type: object
+                          properties:
+                            href:
+                              type: string
+                            methods:
+                              type: array
+                              items:
+                                type: string
+                        timeZoneOffset:
+                          type: string
+                        iataCode:
+                          type: string
+                        geoCode:
+                          type: object
+                          properties:
+                            latitude:
+                              type: number
+                            longitude:
+                              type: number
+                        address:
+                          type: object
+                          properties:
+                            cityName:
+                              type: string
+                            cityCode:
+                              type: string
+                            countryName:
+                              type: string
+                            countryCode:
+                              type: string
+                            stateCode:
+                              type: string
+                            regionCode:
+                              type: string
+                        analytics:
+                          type: object
+                          properties:
+                            travelers:
+                              type: object
+                              properties:
+                                score:
+                                  type: number
+                example:
+                  message: Success!
+                  data:
+                  - analytics:
+                      travelers:
+                        score: 1
+                    iataCode: BGR
+                    address:
+                      regionCode: NAMER
+                      cityName: BANGOR
+                      cityCode: BGR
+                      countryCode: US
+                      stateCode: ME
+                      countryName: UNITED STATES OF AMERICA
+                    timeZoneOffset: -04:00
+                    name: BANGOR
+                    self:
+                      methods:
+                      - GET
+                      href: https://test.api.amadeus.com/v1/reference-data/locations/CBGR
+                    geoCode:
+                      latitude: 44.8075
+                      longitude: -68.82806
+                    subType: AIRPORT
+                    detailedName: BANGOR/ME/US:BANGOR INTL
+                    id: ABGR
+                    type: location
+  /flights/airports-location:
+    get:
+      summary: Get airports near location.
+      description: Returns a list of relevant airports near to a given point.
+      operationId: search_airports_nearby
+      tags:
+        - flights
+        - search
+        - airports
+      parameters:
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: string
+          example: -68.00
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: string
+          example: 44.00
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+          example: Stef
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        subType:
+                          type: string
+                        name:
+                          type: string
+                        detailedName:
+                          type: string
+                        timeZoneOffset:
+                          type: string
+                        iataCode:
+                          type: string
+                        geoCode:
+                          type: object
+                          properties:
+                            latitude:
+                              type: number
+                            longitude:
+                              type: number
+                        address:
+                          type: object
+                          properties:
+                            cityName:
+                              type: string
+                            cityCode:
+                              type: string
+                            countryName:
+                              type: string
+                            countryCode:
+                              type: string
+                            stateCode:
+                              type: string
+                            regionCode:
+                              type: string
+                        distance:
+                          type: object
+                          properties:
+                            value:
+                              type: number
+                            unit:
+                              type: string
+                        analytics:
+                          type: object
+                          properties:
+                            travelers:
+                              type: object
+                              properties:
+                                score:
+                                  type: number
+                            flights:
+                              type: object
+                              properties:
+                                score:
+                                  type: number
+                        relevance:
+                          type: number
+                example:
+                  message: Success!
+                  data:
+                  - analytics:
+                      travelers:
+                        score: 1
+                      flights:
+                        score: 2
+                    iataCode: BOS
+                    address:
+                      regionCode: NAMER
+                      cityName: BOSTON
+                      cityCode: BOS
+                      countryCode: US
+                      stateCode: MA
+                      countryName: UNITED STATES OF AMERICA
+                    timeZoneOffset: -04:00
+                    name: EDWARD L LOGAN INTL
+                    geoCode:
+                      latitude: 42.36514
+                      longitude: -71.01777
+                    subType: AIRPORT
+                    detailedName: BOSTON/MA/US:EDWARD L LOGAN IN
+                    type: location
+                    distance:
+                      value: 305
+                      unit: "KM"
+                    relevance: 9.42849
+  /flights/destinations:
+    get:
+      summary: Get destinations
+      description: Find the cheapest destinations where you can fly to.
+      operationId: get_destinations
+      tags: 
+        - flights
+        - search
+        - destinations
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+          example: Stef
+        - name: origin
+          in: query
+          required: true
+          schema:
+            type: string
+          example: BOS
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        subtype:
+                          type: string
+                        origin:
+                          type: string
+                        destionation:
+                          type: string
+                        departureDate:
+                          type: string
+                        returnDate:
+                          type: string
+                        price:
+                          type: object
+                          properties:
+                            total:
+                              type: string
+                        links:
+                          type: object
+                          properties:
+                            flightDates:
+                              type: string
+                            flightOffers:
+                              type: string
+                example:
+                  message: Success!
+                  data:
+                    - type: flight-destination
+                      origin: BOS
+                      destination: LAX
+                      departureDate: 2022-08-30
+                      returnDate: 2022-09-09
+                      price:
+                        total: 247.21
+                      links:
+                        flightDates: "https://test.api.amadeus.com/v1/shopping/flight-dates?origin=BOS&destination=LAX&departureDate=2022-05-05,2022-10-31&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION"
+                        flightOffers: "https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=BOS&destinationLocationCode=LAX&departureDate=2022-08-30&returnDate=2022-09-09&adults=1&nonStop=false"
+  /flights/dates:
+    get:
+      summary: Get flight dates.
+      description: Find the cheapest flight dates from an origin to a destination.
+      operationId: dates
+      tags:
+        - flights
+        - search
+        - dates
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+          example: Stef
+        - name: origin
+          in: query
+          required: true
+          schema:
+            type: string
+          example: BOS
+        - name: destination
+          in: query
+          required: true
+          schema:
+            type: string
+          example: LAX
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+  /flights/offers/search:
+    get:
+      summary: Get flight offers.
+      description: Return cheapest flight recommendations and prices on a given journey.
+      operationId: offers_search
+      tags:
+        - flights
+        - search
+        - offers
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+          example: Stef
+        - name: originLocationCode
+          in: query
+          required: true
+          schema:
+            type: string
+          example: BOS
+        - name: destinationLocationCode
+          in: query
+          required: true
+          schema:
+            type: string
+          example: LAX
+        - name: departureDate
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "2022-08-30"
+        - name: adults
+          in: query
+          required: true
+          schema:
+            type: number
+          example: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+              example:
+                message: Success!
+                data:
+                - type: flight-offer
+                  id: '1'
+                  source: GDS
+                  instantTicketingRequired: false
+                  nonHomogeneous: false
+                  oneWay: false
+                  lastTicketingDate: '2022-05-05'
+                  numberOfBookableSeats: 3
+                  itineraries:
+                    - duration: PT6H23M
+                      segments:
+                        - departure:
+                            iataCode: BOS
+                            terminal: A
+                            at: '2022-08-30T15:25:00'
+                          arrival:
+                            iataCode: LAX
+                            terminal: '2'
+                            at: '2022-08-30T18:48:00'
+                          carrierCode: DL
+                          number: '519'
+                          aircraft:
+                            code: 75W
+                          operating:
+                            carrierCode: DL
+                          duration: PT6H23M
+                          id: '162'
+                          numberOfStops: 0
+                          blacklistedInEU: false
+                  price:
+                    currency: EUR
+                    total: '118.17'
+                    base: '97.00'
+                    fees:
+                      - amount: '0.00'
+                        type: SUPPLIER
+                      - amount: '0.00'
+                        type: TICKETING
+                    grandTotal: '118.17'
+                  pricingOptions:
+                    fareType:
+                      - PUBLISHED
+                    includedCheckedBagsOnly: false
+                  validatingAirlineCodes:
+                    - DL
+                  travelerPricings:
+                    - travelerId: '1'
+                      fareOption: STANDARD
+                      travelerType: ADULT
+                      price:
+                        currency: EUR
+                        total: '118.17'
+                        base: '97.00'
+                      fareDetailsBySegment:
+                        - segmentId: '162'
+                          cabin: ECONOMY
+                          fareBasis: VAVNA0BQ
+                          brandedFare: BASICECON
+                          class: E
+                          includedCheckedBags:
+                            quantity: 0
+  /flights/airlines:
+    get:
+      summary: Get airlines.
+      description: Returns the airline information.
+      operationId: airlines
+      tags:
+        - flights
+        - search
+        - airlines
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+          example: Stef
+        - name: airlineCodes
+          in: query
+          required: true
+          schema:
+            type: string
+          example: BOS
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+              example:
+                data:
+                  - type: airline
+                    iataCode: LV
+                    icaoCode: BOS
+                    businessName: OPENSKIES
+                    commonName: OPENSKIES
+                message: Success!
+  /flights/get-ticket:
+    get:
+      summary: Get ticket
+      description: Get a booked ticket by its id.
+      operationId: get_ticket
+      tags:
+        - flights
+        - booking
+      parameters:
+        - name: ticketId
+          in: query
+          required: true
+          schema:
+            type: string
+          example: 627306b7178af0708237e4a8
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                      ticketOffer:
+                        type: object
+                        properties:
+                          ticketOfferId:
+                            type: string
+                      _id:
+                        type: string
+              example:
+                message: Success!
+                data:
+                  username: Stef
+                  ticketOffer:
+                    ticketOfferId: Offer123
+                  _id: 627306b7178af0708237e4a8
+  /flights/get-tickets:
+    get:
+      summary: Get tickets for a user
+      description: Return all tickets for a specific user.
+      operationId: get_tickets
+      tags:
+        - flights
+        - booking
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+          example: Stef
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        username:
+                          type: string
+                        ticketOffer:
+                          type: object
+                          properties:
+                            ticketOfferId:
+                              type: string
+                        _id:
+                          type: string
+              example:
+                message: Success!
+                data:
+                  - username: Stef
+                    ticketOffer:
+                      ticketOfferId: Offer123
+                    _id: 627306b7178af0708237e4a8
   /flights/book-a-ticket:
     post:
       summary: Book a ticket
       description: Book a flight ticket provided by Amadeus API
       operationId: book_a_ticket
+      tags:
+        - flights
+        - booking
       requestBody:
         description: Parameters are username and ticket offer
         required: true
@@ -64,208 +774,66 @@ paths:
               properties:
                 username:
                   type: string
-                  required: true
-                  example: Stef
                 ticketOffer:
                   type: object
                   properties:
                     ticketOfferId:
                       type: string
-                      example: Offer123
-        responses:
-          "200":
-            description: OK
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    _id:
-                      type: object
-                      properties:
-                        oid:
-                          type: string
-                          example: 627257b37210c8f95ba25d93
-components:
-  schemas:
-    inline_response_200:
-      type: object
-      properties:
-        message:
-          type: string
-          example: Success!
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                example: location
-              subType:
-                type: string
-                example: CITY
-              name:
-                type: string
-                example: BANGOR
-              detailedName:
-                type: string
-                example: ANGOR/ME/US:BANGOR INTL
-              id:
-                type: string
-                example: CBGR
-              self:
+              example:
+                username: Stef
+                ticketOffer:
+                  ticketOfferId: Offer123
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
                 type: object
                 properties:
-                  href:
-                    type: string
-                    example: https://test.api.amadeus.com/v1/reference-data/locations/CBGR
-                  methods:
-                    type: array
-                    items:
-                      type: string
-                      example: GET
-                example:
-                  methods:
-                  - GET
-                  - GET
-                  href: https://test.api.amadeus.com/v1/reference-data/locations/CBGR
-              timeZoneOffset:
-                type: string
-                example: -04:00
-              iataCode:
-                type: string
-                example: BGR
-              geoCode:
-                type: object
-                properties:
-                  latitude:
-                    type: number
-                    example: 44.8075
-                  longitude:
-                    type: number
-                    example: -68.82806
-                example:
-                  latitude: 44.8075
-                  longitude: -68.82806
-              address:
-                type: object
-                properties:
-                  cityName:
-                    type: string
-                    example: BANGOR
-                  cityCode:
-                    type: string
-                    example: BGR
-                  countryName:
-                    type: string
-                    example: UNITED STATES OF AMERICA
-                  countryCode:
-                    type: string
-                    example: US
-                  stateCode:
-                    type: string
-                    example: ME
-                  regionCode:
-                    type: string
-                    example: NAMER
-                example:
-                  regionCode: NAMER
-                  cityName: BANGOR
-                  cityCode: BGR
-                  countryCode: US
-                  stateCode: ME
-                  countryName: UNITED STATES OF AMERICA
-              analytics:
-                type: object
-                properties:
-                  travelers:
+                  _id:
                     type: object
                     properties:
-                      score:
-                        type: number
-                        example: 1
-                    example:
-                      score: 1
+                      "$oid":
+                        type: string
                 example:
-                  travelers:
-                    score: 1
-            example:
-              analytics:
-                travelers:
-                  score: 1
-              iataCode: BGR
-              address:
-                regionCode: NAMER
-                cityName: BANGOR
-                cityCode: BGR
-                countryCode: US
-                stateCode: ME
-                countryName: UNITED STATES OF AMERICA
-              timeZoneOffset: -04:00
-              name: BANGOR
-              self:
-                methods:
-                - GET
-                - GET
-                href: https://test.api.amadeus.com/v1/reference-data/locations/CBGR
-              geoCode:
-                latitude: 44.8075
-                longitude: -68.82806
-              subType: CITY
-              detailedName: ANGOR/ME/US:BANGOR INTL
-              id: CBGR
-              type: location
-      example:
-        data:
-        - analytics:
-            travelers:
-              score: 1
-          iataCode: BGR
-          address:
-            regionCode: NAMER
-            cityName: BANGOR
-            cityCode: BGR
-            countryCode: US
-            stateCode: ME
-            countryName: UNITED STATES OF AMERICA
-          timeZoneOffset: -04:00
-          name: BANGOR
-          self:
-            methods:
-            - GET
-            - GET
-            href: https://test.api.amadeus.com/v1/reference-data/locations/CBGR
-          geoCode:
-            latitude: 44.8075
-            longitude: -68.82806
-          subType: CITY
-          detailedName: ANGOR/ME/US:BANGOR INTL
-          id: CBGR
-          type: location
-        - analytics:
-            travelers:
-              score: 1
-          iataCode: BGR
-          address:
-            regionCode: NAMER
-            cityName: BANGOR
-            cityCode: BGR
-            countryCode: US
-            stateCode: ME
-            countryName: UNITED STATES OF AMERICA
-          timeZoneOffset: -04:00
-          name: BANGOR
-          self:
-            methods:
-            - GET
-            - GET
-            href: https://test.api.amadeus.com/v1/reference-data/locations/CBGR
-          geoCode:
-            latitude: 44.8075
-            longitude: -68.82806
-          subType: CITY
-          detailedName: ANGOR/ME/US:BANGOR INTL
-          id: CBGR
-          type: location
-        message: Success!
+                  message: Success!
+                  data:
+                    username: Stef
+                    ticketOffer:
+                      ticketOfferId: Offer123
+                    _id: 627306b7178af0708237e4a8
+  /flights/cancel-a-ticket:
+    delete:
+      summary: Delete a booking.
+      description: Cancel a booked ticket.
+      tags:
+        - flights
+        - booking
+      parameters:
+        - name: ticketId
+          in: query
+          required: true
+          schema:
+            type: string
+          example: 627257b37210c8f95ba25d93
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+              example: 
+                message: Success!
+                data:
+                  _id:
+                    $oid: 62730146b835f62ae84b7838
+                  username: Stef
+                  ticketOffer:
+                    ticketOfferId: Offer123

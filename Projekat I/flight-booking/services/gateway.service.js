@@ -132,18 +132,34 @@ module.exports = {
             group: "communication",
             async handler(ctx) {
                 try {
-                    request.post(process.env.INTERNAL_URL + "/writeDB", {
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(ctx.params)
-                    }, (err, resp, body) => {
-                        if (err) {
-                            this.logger.info("Error occurred!", err);
-                            throw new MoleculerError("Server side error occurred!", 500);
+                    return await new Promise((resolve, reject) => {
+                        try {
+                            request.post(process.env.INTERNAL_URL + "/writeDB", {
+                                headers: {
+                                     'Content-Type': 'application/json' 
+                                    },
+                                body: JSON.stringify(ctx.params)
+                            }, (err, resp, body) => {
+                                if (resp.statusCode != 200) {
+                                    this.logger.info("Error occurred!", err);
+                                    reject(resp.statusMessage);
+                                }
+                                try { 
+                                    resolve({ message: "Success!", data: JSON.parse(body) });
+                                }
+                                catch(_){
+                                    resolve({ message: "Success!", data: body });
+                                }
+                            });
                         }
-                        return body;
+                        catch(err) {
+                            reject(err);
+                        }
                     });
-                } catch (err) {
+                }
+                catch (err) {
                     this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
                 }
             }
         }
