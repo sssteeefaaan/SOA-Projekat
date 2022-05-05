@@ -44,7 +44,8 @@ services:
       - INFLUX_USERNAME=admin
       - INFLUX_PASSWORD=admin
       - DATABASE_NAME=flight-bookings
-      - MONGODB_URL=mongodb://admin:admin@mongo:27017/?authSource=admin
+      - MONGODB_URL=mongodb+srv://swiftly:JG3XJaqKAqPPxp6F@cluster0.q5ejg.mongodb.net/flight-bookings?retryWrites=true&w=majority
+      - MONGO_URL_LOCAL=mongodb://admin:admin@mongo:27017/?authSource=admin
       - DEBUG=True
     depends_on:
       - influx
