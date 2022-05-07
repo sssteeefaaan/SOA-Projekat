@@ -382,6 +382,95 @@ module.exports = {
                 }
             }
         },
+		
+		bookFlight: {
+            rest: {
+                methods: "POST",
+                path: "/book-a-flight"
+            },
+            params: {
+                username: { type: "string", min: 2 },
+				origin: { type: "string", min: 3, max: 3 },
+                destination: { type: "string", min: 3, max: 3 },
+				departureDate: { type: "string", min: 2 } 
+            },
+            async handler(ctx) {
+                try {
+                    return await new Promise((resolve, reject) => {
+                        try {
+                            request.post(`${ process.env.INTERNAL_URL }/book-a-flight`, {
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(ctx.params)
+                            }, (err, resp, body) => {
+                                if (resp.statusCode != 200) {
+                                    this.logger.info("Error occurred!", err);
+                                    reject(resp.statusMessage);
+                                }
+                                let response;
+                                try{
+                                    response = JSON.parse(body);
+                                }
+                                catch(e){
+                                    response = body;
+                                }
+                                resolve({ message: "Success!", data: response });
+                            });
+                        } catch (err) {
+                            reject(err);
+                        }
+                    });
+                } catch (err) {
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
+                }
+            }
+        },
+		
+		changeTicketInfo: {
+            rest: {
+                methods: "PATCH",
+                path: "/change-ticket-info"
+            },
+            params: {
+				ticketId: { type: "string", min: 10 },
+				username: { type: "string", min: 2 },
+                departureDate: { type: "string", min: 2 }
+            },
+            async handler(ctx) {
+                try {
+                    return await new Promise((resolve, reject) => {
+                        try {
+                            request.patch(`${ process.env.INTERNAL_URL }/change-ticket-info?ticketId=${ ctx.params.ticketId }`, {
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(ctx.params)
+                            }, (err, resp, body) => {
+                                if (resp.statusCode != 200) {
+                                    this.logger.info("Error occurred!", err);
+                                    reject(resp.statusMessage);
+                                }
+                                let response;
+                                try{
+                                    response = JSON.parse(body);
+                                }
+                                catch(e){
+                                    response = body;
+                                }
+                                resolve({ message: "Success!", data: response });
+                            });
+                        } catch (err) {
+                            reject(err);
+                        }
+                    });
+                } catch (err) {
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
+                }
+            }
+        },
 
         cancelTicket: {
             rest: {
@@ -470,6 +559,80 @@ module.exports = {
                     return await new Promise((resolve, reject) => {
                         try {
                             request.get(`${ process.env.INTERNAL_URL }/get-tickets?username=${ ctx.params.username }`, (err, resp, body) => {
+                                if (resp.statusCode != 200) {
+                                    this.logger.info("Error occurred!", err);
+                                    reject(resp.statusMessage);
+                                }
+                                let response;
+                                try{
+                                    response = JSON.parse(body);
+                                }
+                                catch(e){
+                                    response = body;
+                                }
+                                resolve({ message: "Success!", data: response });
+                            });
+                        } catch (err) {
+                            reject(err);
+                        }
+                    });
+                } catch (err) {
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
+                }
+            }
+        },
+		
+		getFlights: {
+            rest: {
+                methods: "GET",
+                path: "/get-flights"
+            },
+            params: {
+                destination: { type: "string", min: 3, max: 3 }
+            },
+            async handler(ctx) {
+                try {
+                    return await new Promise((resolve, reject) => {
+                        try {
+                            request.get(`${ process.env.INTERNAL_URL }/get-flights?destination=${ ctx.params.destination }`, (err, resp, body) => {
+                                if (resp.statusCode != 200) {
+                                    this.logger.info("Error occurred!", err);
+                                    reject(resp.statusMessage);
+                                }
+                                let response;
+                                try{
+                                    response = JSON.parse(body);
+                                }
+                                catch(e){
+                                    response = body;
+                                }
+                                resolve({ message: "Success!", data: response });
+                            });
+                        } catch (err) {
+                            reject(err);
+                        }
+                    });
+                } catch (err) {
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
+                }
+            }
+        },
+		
+		getFlightsForDate: {
+            rest: {
+                methods: "GET",
+                path: "/get-flights-date"
+            },
+            params: {
+                departureDate: { type: "string", min: 2 }
+            },
+            async handler(ctx) {
+                try {
+                    return await new Promise((resolve, reject) => {
+                        try {
+                            request.get(`${ process.env.INTERNAL_URL }/get-flights-date?departureDate=${ ctx.params.departureDate }`, (err, resp, body) => {
                                 if (resp.statusCode != 200) {
                                     this.logger.info("Error occurred!", err);
                                     reject(resp.statusMessage);

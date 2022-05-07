@@ -55,7 +55,32 @@ def bookTicket():
         return Response(dumps(data), status=200, mimetype="json")
     except Exception as e:
         return Response(handleError(e), status=500)
-    
+        
+        
+@app.route('/book-a-flight', methods=["POST"])
+def bookFlight():
+    try:
+        if not request.is_json:
+            raise Exception("Request must be application/json!")
+        data = request.get_json()
+        result = mongoDatabase.tickets.insert_one(data)
+        data.update({ "_id": str(result.inserted_id) })
+        return Response(dumps(data), status=200, mimetype="json")
+    except Exception as e:
+        return Response(handleError(e), status=500)
+        
+        
+@app.route('/change-ticket-info', methods=["PATCH"])
+def changeTicketInfo():
+    try:
+        if not request.is_json:
+            raise Exception("Request must be application/json!")
+        ticketId = ObjectId(request.args.get('ticketId'))
+        result = mongoDatabase.tickets.update_one({'_id': ticketId }, {'$set': {'username': request.args.get('username')}})
+        return Response(dumps(result), status=200, mimetype="json")
+    except Exception as e:
+        return Response(handleError(e), status=500)
+
     
 @app.route('/cancel-a-ticket', methods=["DELETE"])
 def cancelTicket():
@@ -85,6 +110,24 @@ def getTicket():
         result = mongoDatabase.tickets.find_one(ticketId)
         return Response(dumps(result), status=200, mimetype="json")
     
+    except Exception as e:
+        return Response(handleError(e), status=500)
+        
+        
+@app.route('/get-flights', methods=["GET"])
+def getFlights():
+    try:
+        result = mongoDatabase.tickets.find({"destination": request.args.get('destination')}).sort("departureDate")
+        return Response(dumps(result), status=200, mimetype="json")
+    except Exception as e:
+        return Response(handleError(e), status=500)
+        
+        
+@app.route('/get-flights-date', methods=["GET"])
+def getFlightsForDate():
+    try:
+        result = mongoDatabase.tickets.find({"departureDate": request.args.get('departureDate')}).sort("username")
+        return Response(dumps(result), status=200, mimetype="json")
     except Exception as e:
         return Response(handleError(e), status=500)
     
