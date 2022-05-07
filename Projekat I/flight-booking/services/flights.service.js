@@ -471,6 +471,49 @@ module.exports = {
                 }
             }
         },
+		
+		changeUser: {
+            rest: {
+                methods: "PATCH",
+                path: "/change-user"
+            },
+            params: {
+				ticketId: { type: "string", min: 10 },
+				username: { type: "string", min: 2 }
+            },
+            async handler(ctx) {
+                try {
+                    return await new Promise((resolve, reject) => {
+                        try {
+                            request.patch(`${ process.env.INTERNAL_URL }/change-user`, {
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(ctx.params)
+                            }, (err, resp, body) => {
+                                if (resp.statusCode != 200) {
+                                    this.logger.info("Error occurred!", err);
+                                    reject(resp.statusMessage);
+                                }
+                                let response;
+                                try{
+                                    response = JSON.parse(body);
+                                }
+                                catch(e){
+                                    response = body;
+                                }
+                                resolve({ message: "Success!", data: response });
+                            });
+                        } catch (err) {
+                            reject(err);
+                        }
+                    });
+                } catch (err) {
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
+                }
+            }
+        },
 
         cancelTicket: {
             rest: {

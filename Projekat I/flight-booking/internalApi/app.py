@@ -84,6 +84,22 @@ def changeTicketInfo():
         return Response(dumps(result), status=200, mimetype="json")
     except Exception as e:
         return Response(handleError(e), status=500)
+        
+        
+@app.route('/change-user', methods=["PATCH"])
+def changeUser():
+    try:
+        if not request.is_json:
+            raise Exception("Request must be application/json!")
+        data = request.get_json()
+        ticketId = ObjectId(data['ticketId'])
+        update = { x : data[x] for x in data.keys() if x != 'ticketId' }
+        if not update:
+            raise Exception("Nothing to update!")
+        result = mongoDatabase.tickets.find_one_and_update({ '_id': ticketId }, { '$set': update }, return_document=ReturnDocument.AFTER)
+        return Response(dumps(result), status=200, mimetype="json")
+    except Exception as e:
+        return Response(handleError(e), status=500)
 
     
 @app.route('/cancel-a-ticket', methods=["DELETE"])
