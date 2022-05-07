@@ -68,7 +68,8 @@ services:
   mongo:
     image: mongo:latest
     volumes:
-      - "./persisted/mongodb-storage/:/data/db"
+      # - "./persisted/mongodb-storage/:/data/db"
+      - mongodb:/data/db
     ports:
       - 27017:27017
     environment:
@@ -121,3 +122,6 @@ services:
 
 networks:
   internal:
+
+volumes:
+  mongodb:

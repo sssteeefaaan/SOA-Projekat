@@ -442,7 +442,7 @@ module.exports = {
                 try {
                     return await new Promise((resolve, reject) => {
                         try {
-                            request.patch(`${ process.env.INTERNAL_URL }/change-ticket-info?ticketId=${ ctx.params.ticketId }`, {
+                            request.patch(`${ process.env.INTERNAL_URL }/change-ticket-info`, {
                                 headers: {
                                     'Content-Type': 'application/json'
                                 },
