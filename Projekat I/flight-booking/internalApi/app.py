@@ -1,5 +1,6 @@
 from crypt import methods
 from datetime import datetime
+import json
 from flask import Flask, request, Response
 from influxdb import InfluxDBClient
 from os import environ as env, stat
@@ -7,6 +8,7 @@ from handleError import handleError
 from pymongo import MongoClient, ReturnDocument
 from bson.objectid import ObjectId
 from bson.json_util import dumps
+import csv
 
 DB = env['DATABASE_NAME']
 
@@ -27,6 +29,10 @@ if DB not in map(lambda x: x['name'], influxClient.get_list_database()):
     
 influxClient.switch_database(DB)
 
+with open('Airports-Only.csv', encoding='latin-1') as file:
+    flights = csv.DictReader(file)
+    # for row in flights:
+    #     print(row)
 
 @app.route('/writeDB', methods=["POST"])
 def writeDB():
@@ -148,6 +154,31 @@ def getFlightsForDate():
     try:
         result = mongoDatabase.tickets.find({"departureDate": request.args.get('departureDate')}).sort("username")
         return Response(dumps(result), status=200, mimetype="json")
+    except Exception as e:
+        return Response(handleError(e), status=500)
+        
+        
+@app.route('/cities', methods=["GET"])
+def cities():
+    try:
+        result = []
+        for airport in flights:
+            if request.args.get('keyword') in airport['City']:
+                result.append(airport)
+            json.dumps(result)
+        return Response(dumps(result), status=200, mimetype="json")
+    except Exception as e:
+        return Response(handleError(e), status=500)
+
+
+@app.route('/airport-info', methods=["POST"])
+def airportInfo():
+    try:
+        for airport in flights:
+            data = json.dumps(airport)
+            result = mongoDatabase.tickets.insert_one(data)
+            data.update({ "_id": str(result.inserted_id) })
+            return Response(dumps(data), status=200, mimetype="json")
     except Exception as e:
         return Response(handleError(e), status=500)
     
