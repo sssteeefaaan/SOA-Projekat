@@ -171,6 +171,19 @@ def cities():
         return Response(handleError(e), status=500)
 
 
+@app.route('/airports-keyword', methods=["GET"])
+def cities():
+    try:
+        result = []
+        for airport in flights:
+            if request.args.get('keyword') in airport['IATA']:
+                result.append(airport)
+            json.dumps(result)
+        return Response(dumps(result), status=200, mimetype="json")
+    except Exception as e:
+        return Response(handleError(e), status=500)
+
+
 @app.route('/airport-info', methods=["POST"])
 def airportInfo():
     try:
