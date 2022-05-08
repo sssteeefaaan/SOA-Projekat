@@ -20,7 +20,7 @@ paths:
   /flights/cities:
     get:
       summary: Get city's code
-      description: Returns a list of cities matching a given keyword.
+      description: Returns a list of cities matching a given keyword
       operationId: search_cities
       tags:
         - flights
@@ -143,7 +143,7 @@ paths:
   /flights/airports-keyword:
     get:
       summary: Get airports
-      description: Returns a list of airports matching a given keyword.
+      description: Returns a list of airports matching a given keyword
       operationId: search_airports
       tags:
         - flights
@@ -265,8 +265,8 @@ paths:
                     type: location
   /flights/airports-location:
     get:
-      summary: Get airports near location.
-      description: Returns a list of relevant airports near to a given point.
+      summary: Get airports near location
+      description: Returns a list of relevant airports near to a given point
       operationId: search_airports_nearby
       tags:
         - flights
@@ -393,7 +393,7 @@ paths:
   /flights/destinations:
     get:
       summary: Get destinations
-      description: Find the cheapest destinations where you can fly to.
+      description: Find the cheapest destinations where you can fly to
       operationId: get_destinations
       tags: 
         - flights
@@ -466,8 +466,8 @@ paths:
                         flightOffers: "https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=BOS&destinationLocationCode=LAX&departureDate=2022-08-30&returnDate=2022-09-09&adults=1&nonStop=false"
   /flights/dates:
     get:
-      summary: Get flight dates.
-      description: Find the cheapest flight dates from an origin to a destination.
+      summary: Get flight dates
+      description: Find the cheapest flight dates from an origin to a destination
       operationId: dates
       tags:
         - flights
@@ -506,8 +506,8 @@ paths:
                     type: object
   /flights/offers/search:
     get:
-      summary: Get flight offers.
-      description: Return cheapest flight recommendations and prices on a given journey.
+      summary: Get flight offers
+      description: Return cheapest flight recommendations and prices on a given journey
       operationId: offers_search
       tags:
         - flights
@@ -624,8 +624,8 @@ paths:
                             quantity: 0
   /flights/airlines:
     get:
-      summary: Get airlines.
-      description: Returns the airline information.
+      summary: Get airlines
+      description: Returns the airline information
       operationId: airlines
       tags:
         - flights
@@ -669,7 +669,7 @@ paths:
   /flights/get-ticket:
     get:
       summary: Get ticket
-      description: Get a booked ticket by its id.
+      description: Get a booked ticket by its id
       operationId: get_ticket
       tags:
         - flights
@@ -713,7 +713,7 @@ paths:
   /flights/get-tickets:
     get:
       summary: Get tickets for a user
-      description: Return all tickets for a specific user.
+      description: Return all tickets for a specific user
       operationId: get_tickets
       tags:
         - flights
@@ -752,10 +752,116 @@ paths:
               example:
                 message: Success!
                 data:
-                  - username: Stef
+                    username: Stef
                     ticketOffer:
                       ticketOfferId: Offer123
                     _id: 627306b7178af0708237e4a8
+  /flights/get-flights:
+    get:
+      summary: Get flights for a destination
+      description: Return all flights with a specific destination
+      operationId: get_flights
+      tags:
+        - flights
+        - booking
+        - search
+      parameters:
+        - name: destination
+          in: query
+          required: true
+          schema:
+            type: string
+          example: BOS
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        username:
+                          type: string
+                        origin:
+                          type: string
+                        destination:
+                          type: string
+                        departureDate:
+                          type: string
+                        _id:
+                          type: object
+                          properties:
+                            "$oid":
+                              type: string
+              example:
+                message: Success!
+                data:
+                  - username: Tea
+                    origin: BGD
+                    destination: BOS
+                    departureDate: '2022-09-12'
+                    _id: 
+                      "$oid": 627678b103b66099b46de4b2
+  /flights/get-flights-date:
+    get:
+      summary: Get flights for a departure date
+      description: Return all flights for a specific departure date
+      operationId: get_flights_date
+      tags:
+        - flights
+        - booking
+        - search
+      parameters:
+        - name: departureDate
+          in: query
+          required: true
+          schema:
+            type: string
+          example: '2021-05-10'
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        username:
+                          type: string
+                        origin:
+                          type: string
+                        destination:
+                          type: string
+                        departureDate:
+                          type: string
+                        _id:
+                          type: object
+                          properties:
+                            "$oid":
+                              type: string
+              example:
+                message: Success!
+                data:
+                  - username: Emina
+                    origin: BGD
+                    destination: LAX
+                    departureDate: '2021-05-10'
+                    _id: 
+                      "$oid": 62751639f84f6ebf732ddf98
   /flights/book-a-ticket:
     post:
       summary: Book a ticket
@@ -802,11 +908,161 @@ paths:
                     username: Stef
                     ticketOffer:
                       ticketOfferId: Offer123
-                    _id: 627306b7178af0708237e4a8
+                    _id: 
+                      "$oid": 627306b7178af0708237e4a8
+  /flights/book-a-flight:
+    post:
+      summary: Book a flight
+      description: Book a flight provided by Amadeus API
+      operationId: book_a_flight
+      tags:
+        - flights
+        - booking
+      requestBody:
+        description: Parameters are username, origin, destination and departure date
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                origin:
+                  type: string
+                destination:
+                  type: string
+                departureDate:
+                  type: string
+              example:
+                username: Tea
+                origin: BGD
+                destination: BOS
+                departureDate: '2022-09-12'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: object
+                    properties:
+                      "$oid":
+                        type: string
+                example:
+                  message: Success!
+                  data:
+                    username: Tea
+                    origin: BGD
+                    destination: BOS
+                    departureDate: '2022-09-12'
+                    _id: 
+                      "$oid": 627678b103b66099b46de4b2
+  /flights/change-user:
+    patch:
+      summary: Change username
+      description: Change given username for specific offer
+      operationId: change_user
+      tags:
+        - flights
+        - booking
+      requestBody:
+        description: Parameters are id of a ticket and username
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ticketId:
+                  type: string
+                username:
+                  type: string
+              example:
+                ticketId: 6276e64dea3fa53017cba21d
+                username: Stefan
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id: 
+                    type: string
+                  username: 
+                    type: string
+                example:
+                  message: Success!
+                  data:
+                    username: Stefan
+                    ticketOffer: 
+                      ticketOfferId: OfferNew
+                    _id: 6276e64dea3fa53017cba21d
+  /flights/change-ticket-info:
+    patch:
+      summary: Change ticket
+      description: Change given username and departure date for a specific booking
+      operationId: change_ticket_info
+      tags:
+        - flights
+        - booking
+      requestBody:
+        description: Parameters are id of a ticket, username and departure date
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ticketId:
+                  type: string
+                username:
+                  type: string
+                departureDate:
+                  type: string
+              example:
+                ticketId: 6274512a9495d42272155a35
+                username: Mina
+                departureDate: '2022-10-10'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id: 
+                    type: object
+                    properties:
+                      "$oid":
+                        type: string
+                  username: 
+                    type: string
+                  origin:
+                    type: string
+                  destination: 
+                    type: string
+                  departureDate: 
+                    type: string
+                example:
+                  message: Success!
+                  data:
+                    username: Mina
+                    origin: BGD
+                    destination: LAX
+                    departureDate: '2022-10-10'
+                    _id: 
+                      "$oid": 6276e64dea3fa53017cba21d
   /flights/cancel-a-ticket:
     delete:
-      summary: Delete a booking.
-      description: Cancel a booked ticket.
+      summary: Delete a booking
+      description: Cancel a booked ticket
       tags:
         - flights
         - booking
