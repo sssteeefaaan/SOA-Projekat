@@ -43,6 +43,19 @@ def writeDB():
         return Response("Ok", status=200)
     except Exception as e:
         return Response(handleError(e), status=500)
+
+
+@app.route('/writeWeatherData', methods=["POST"])
+def writeWeatherData():
+    try:
+        if not request.is_json:
+            raise Exception("Request must be application/json!")
+        data = request.get_json()
+        result = mongoDatabase.weather.insert_one(data)
+        data.update({ "_id": str(result.inserted_id) })
+        return Response(dumps(data), status=200, mimetype="json")
+    except Exception as e:
+        return Response(handleError(e), status=500)
     
     
 @app.route('/book-a-ticket', methods=["POST"])
