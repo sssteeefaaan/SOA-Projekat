@@ -32,6 +32,19 @@ services:
       - nats
     networks:
       - internal
+      
+  weather:
+    build:
+      context: .
+    image: weather-data
+    env_file: docker-compose.env
+    environment:
+      SERVICES: flights
+    depends_on:
+      - influx
+      - nats
+    networks:
+      - internal
 
   internal_api:
     build:

@@ -341,7 +341,48 @@ module.exports = {
             }
         },
 
-        bookTicket: {
+        airportInfo: {
+            rest: {
+                methods: "POST",
+                path: "/airport-info"
+            },
+            params: {
+            },
+            async handler(ctx) {
+                try {
+                    return await new Promise((resolve, reject) => {
+                        try {
+                            request.post(`${ process.env.INTERNAL_URL }/airport-info`, {
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(ctx.params)
+                            }, (err, resp, body) => {
+                                if (resp.statusCode != 200) {
+                                    this.logger.info("Error occurred!", err);
+                                    reject(resp.statusMessage);
+                                }
+                                let response;
+                                try{
+                                    response = JSON.parse(body);
+                                }
+                                catch(e){
+                                    response = body;
+                                }
+                                resolve({ message: "Success!", data: response });
+                            });
+                        } catch (err) {
+                            reject(err);
+                        }
+                    });
+                } catch (err) {
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
+                }
+            }
+        },
+		
+		bookTicket: {
             rest: {
                 methods: "POST",
                 path: "/book-a-ticket"
