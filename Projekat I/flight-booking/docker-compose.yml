@@ -36,13 +36,14 @@ services:
   weather:
     build:
       context: .
-    image: weather-data
+    image: flight-booking
     env_file: docker-compose.env
     environment:
-      SERVICES: flights
+      CSV_FILE: /var/lib/dataset/seattle-weather.csv
+    volumes:
+      - "./dataset:/var/lib/dataset"
     depends_on:
-      - influx
-      - nats
+      - gateway
     networks:
       - internal
 

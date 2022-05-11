@@ -41,7 +41,7 @@ module.exports = {
          */
         getCities: {
             rest: {
-                methods: "GET",
+                method: "GET",
                 path: "/cities"
             },
             params: {
@@ -50,7 +50,6 @@ module.exports = {
             },
             async handler(ctx) {
                 try {
-                    console.log("Params:", ctx.params);
                     return amadeus.referenceData.locations.get({
                             keyword: ctx.params.keyword,
                             subType: Amadeus.location.city
@@ -82,9 +81,9 @@ module.exports = {
         /**
          * Returns a list of airports matching a given keyword.
          */
-        getAirports: {
+        getAirportsByName: {
             rest: {
-                methods: "GET",
+                method: "GET",
                 path: "/airports-keyword"
             },
             params: {
@@ -125,9 +124,9 @@ module.exports = {
         /**
          * Returns a list of relevant airports near to a given point.
          */
-        findAirports: {
+        getAirportsByLocation: {
             rest: {
-                methods: "GET",
+                method: "GET",
                 path: "/airports-location"
             },
             params: {
@@ -168,9 +167,9 @@ module.exports = {
         /**
          * Find the cheapest destinations where you can fly to.
          */
-        destinations: {
+        getDestinations: {
             rest: {
-                methods: "GET",
+                method: "GET",
                 path: "/destinations"
             },
             params: {
@@ -210,9 +209,9 @@ module.exports = {
         /**
          * Find the cheapest flight dates from an origin to a destination.
          */
-        dates: {
+        getDates: {
             rest: {
-                methods: "GET",
+                method: "GET",
                 path: "/dates"
             },
             params: {
@@ -222,7 +221,6 @@ module.exports = {
             },
             async handler(ctx) {
                 try {
-                    this.logger.info("PARAMS", ctx.params);
                     return amadeus.shopping.flightDates
                         .get({
                             origin: ctx.params.origin,
@@ -255,10 +253,10 @@ module.exports = {
         /**
          * Get cheapest flight recommendations and prices on a given journey.
          */
-        search: {
+        getFlightOffers: {
             rest: {
-                methods: "GET",
-                path: "/offers/search"
+                method: "GET",
+                path: "/offers"
             },
             params: {
                 originLocationCode: { type: "string", min: 3, max: 3 },
@@ -303,9 +301,9 @@ module.exports = {
         /**
          * Returns the airline info
          */
-        getAirline: {
+        getAirlines: {
             rest: {
-                methods: "GET",
+                method: "GET",
                 path: "/airlines"
             },
             params: {
@@ -340,110 +338,36 @@ module.exports = {
                 }
             }
         },
-
-        airportInfo: {
-            rest: {
-                methods: "POST",
-                path: "/airport-info"
-            },
-            params: {
-            },
-            async handler(ctx) {
-                try {
-                    return await new Promise((resolve, reject) => {
-                        try {
-                            request.post(`${ process.env.INTERNAL_URL }/airport-info`, {
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify(ctx.params)
-                            }, (err, resp, body) => {
-                                if (resp.statusCode != 200) {
-                                    this.logger.info("Error occurred!", err);
-                                    reject(resp.statusMessage);
-                                }
-                                let response;
-                                try{
-                                    response = JSON.parse(body);
-                                }
-                                catch(e){
-                                    response = body;
-                                }
-                                resolve({ message: "Success!", data: response });
-                            });
-                        } catch (err) {
-                            reject(err);
-                        }
-                    });
-                } catch (err) {
-                    this.logger.info(err);
-                    throw new MoleculerError("Server side error occurred!", 500);
-                }
-            }
-        },
 		
-		bookTicket: {
+        /**
+         * Creates a ticket for a given user and their flight offer
+         */
+		bookATicket: {
             rest: {
-                methods: "POST",
-                path: "/book-a-ticket"
-            },
-            params: {
-                username: { type: "string", min: 2 }
-            },
-            async handler(ctx) {
-                try {
-                    return await new Promise((resolve, reject) => {
-                        try {
-                            request.post(`${ process.env.INTERNAL_URL }/book-a-ticket`, {
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify(ctx.params)
-                            }, (err, resp, body) => {
-                                if (resp.statusCode != 200) {
-                                    this.logger.info("Error occurred!", err);
-                                    reject(resp.statusMessage);
-                                }
-                                let response;
-                                try{
-                                    response = JSON.parse(body);
-                                }
-                                catch(e){
-                                    response = body;
-                                }
-                                resolve({ message: "Success!", data: response });
-                            });
-                        } catch (err) {
-                            reject(err);
-                        }
-                    });
-                } catch (err) {
-                    this.logger.info(err);
-                    throw new MoleculerError("Server side error occurred!", 500);
-                }
-            }
-        },
-		
-		bookFlight: {
-            rest: {
-                methods: "POST",
-                path: "/book-a-flight"
+                method: "POST",
+                path: "/tickets"
             },
             params: {
                 username: { type: "string", min: 2 },
-				origin: { type: "string", min: 3, max: 3 },
-                destination: { type: "string", min: 3, max: 3 },
-				departureDate: { type: "string", min: 2 } 
+                ticketOffer: { type: "object" }
             },
             async handler(ctx) {
                 try {
+                    const ticketOffer = ctx.params.ticketOffer;
+                    const segments = ticketOffer['itineraries'][0]['segments'];
+                    const reqBody = {
+                        ...ctx.params,
+                        departureDate: new Date(segments[0]['departure']['at']),
+                        arrivalDate: new Date(segments[segments.length - 1]['arrival']['at'])
+                    };
+                    this.logger.info("REQUEST BODY", reqBody);
                     return await new Promise((resolve, reject) => {
                         try {
-                            request.post(`${ process.env.INTERNAL_URL }/book-a-flight`, {
+                            request.post(`${ process.env.INTERNAL_URL }/tickets/create`, {
                                 headers: {
                                     'Content-Type': 'application/json'
                                 },
-                                body: JSON.stringify(ctx.params)
+                                body: JSON.stringify(reqBody)
                             }, (err, resp, body) => {
                                 if (resp.statusCode != 200) {
                                     this.logger.info("Error occurred!", err);
@@ -469,68 +393,35 @@ module.exports = {
             }
         },
 		
-		changeTicketInfo: {
+        /**
+         * Changes flight details
+         */
+		updateATicket: {
             rest: {
-                methods: "PATCH",
-                path: "/change-ticket-info"
+                method: "PATCH",
+                path: "/tickets"
             },
             params: {
 				ticketId: { type: "string", min: 10 },
-				username: { type: "string", min: 2 },
-                departureDate: { type: "string", min: 2 }
+				username: { type: "string" },
+                departureDate: { type: "string" },
+                arrivalDate: { type: "string" },
+                info: { type: "string" }
             },
             async handler(ctx) {
                 try {
+                    const reqBody = { ...ctx.params };
+                    if(reqBody['departureDate'])
+                        reqBody['departureDate'] = (new Date(reqBody['departureDate'])).toISOString()
+                    if(reqBody['arrivalDate'])
+                        reqBody['arrivalDate'] = (new Date(reqBody['arrivalDate'])).toISOString()
                     return await new Promise((resolve, reject) => {
                         try {
-                            request.patch(`${ process.env.INTERNAL_URL }/change-ticket-info`, {
+                            request.patch(`${ process.env.INTERNAL_URL }/tickets/update`, {
                                 headers: {
                                     'Content-Type': 'application/json'
                                 },
-                                body: JSON.stringify(ctx.params)
-                            }, (err, resp, body) => {
-                                if (resp.statusCode != 200) {
-                                    this.logger.info("Error occurred!", err);
-                                    reject(resp.statusMessage);
-                                }
-                                let response;
-                                try{
-                                    response = JSON.parse(body);
-                                }
-                                catch(e){
-                                    response = body;
-                                }
-                                resolve({ message: "Success!", data: response });
-                            });
-                        } catch (err) {
-                            reject(err);
-                        }
-                    });
-                } catch (err) {
-                    this.logger.info(err);
-                    throw new MoleculerError("Server side error occurred!", 500);
-                }
-            }
-        },
-		
-		changeUser: {
-            rest: {
-                methods: "PATCH",
-                path: "/change-user"
-            },
-            params: {
-				ticketId: { type: "string", min: 10 },
-				username: { type: "string", min: 2 }
-            },
-            async handler(ctx) {
-                try {
-                    return await new Promise((resolve, reject) => {
-                        try {
-                            request.patch(`${ process.env.INTERNAL_URL }/change-user`, {
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify(ctx.params)
+                                body: JSON.stringify(reqBody)
                             }, (err, resp, body) => {
                                 if (resp.statusCode != 200) {
                                     this.logger.info("Error occurred!", err);
@@ -556,10 +447,13 @@ module.exports = {
             }
         },
 
-        cancelTicket: {
+        /**
+         * Deletes a booked ticket
+         */
+        cancelATicket: {
             rest: {
-                methods: "DELETE",
-                path: "/cancel-a-ticket"
+                method: "DELETE",
+                path: "/tickets/:ticketId"
             },
             params: {
                 ticketId: { type: "string", min: 10 }
@@ -568,7 +462,7 @@ module.exports = {
                 try {
                     return await new Promise((resolve, reject) => {
                         try {
-                            request.delete(`${ process.env.INTERNAL_URL }/cancel-a-ticket?ticketId=${ ctx.params.ticketId }`, (err, resp, body) => {
+                            request.delete(`${ process.env.INTERNAL_URL }/tickets/delete/${ ctx.params.ticketId }`, (err, resp, body) => {
                                 if (resp.statusCode != 200) {
                                     this.logger.info("Error occurred!", err);
                                     reject(resp.statusMessage);
@@ -593,10 +487,13 @@ module.exports = {
             }
         },
 
-        getTicket: {
+        /**
+         * Returns a specific ticket
+         */
+        getATicket: {
             rest: {
-                methods: "GET",
-                path: "/get-ticket"
+                method: "GET",
+                path: "/tickets/:ticketId"
             },
             params: {
                 ticketId: { type: "string", min: 10 }
@@ -605,7 +502,7 @@ module.exports = {
                 try {
                     return await new Promise((resolve, reject) => {
                         try {
-                            request.get(`${ process.env.INTERNAL_URL }/get-ticket?ticketId=${ ctx.params.ticketId }`, (err, resp, body) => {
+                            request.get(`${ process.env.INTERNAL_URL }/tickets/${ ctx.params.ticketId }`, (err, resp, body) => {
                                 if (resp.statusCode != 200) {
                                     this.logger.info("Error occurred!", err);
                                     reject(resp.statusMessage);
@@ -630,10 +527,13 @@ module.exports = {
             }
         },
 
+        /**
+         * Returns all tickets for a specific user
+         */
         getTickets: {
             rest: {
-                methods: "GET",
-                path: "/get-tickets"
+                method: "GET",
+                path: "/myTickets/:username"
             },
             params: {
                 username: { type: "string", min: 2 }
@@ -642,7 +542,7 @@ module.exports = {
                 try {
                     return await new Promise((resolve, reject) => {
                         try {
-                            request.get(`${ process.env.INTERNAL_URL }/get-tickets?username=${ ctx.params.username }`, (err, resp, body) => {
+                            request.get(`${ process.env.INTERNAL_URL }/tickets/user/${ ctx.params.username }`, (err, resp, body) => {
                                 if (resp.statusCode != 200) {
                                     this.logger.info("Error occurred!", err);
                                     reject(resp.statusMessage);
@@ -666,20 +566,24 @@ module.exports = {
                 }
             }
         },
-		
-		getFlights: {
+
+
+        /**
+         * Returns all notifications for a specified username.
+         */
+        getNotifications: {
             rest: {
-                methods: "GET",
-                path: "/get-flights"
+                method: "GET",
+                path: "/notifications/:username"
             },
             params: {
-                destination: { type: "string", min: 3, max: 3 }
+                username: { type: "string", min: 1 }
             },
             async handler(ctx) {
                 try {
                     return await new Promise((resolve, reject) => {
                         try {
-                            request.get(`${ process.env.INTERNAL_URL }/get-flights?destination=${ ctx.params.destination }`, (err, resp, body) => {
+                            request.get(`${ process.env.INTERNAL_URL }/notifications/${ ctx.params.username }`, (err, resp, body) => {
                                 if (resp.statusCode != 200) {
                                     this.logger.info("Error occurred!", err);
                                     reject(resp.statusMessage);
@@ -702,253 +606,7 @@ module.exports = {
                     throw new MoleculerError("Server side error occurred!", 500);
                 }
             }
-        },
-		
-		getFlightsForDate: {
-            rest: {
-                methods: "GET",
-                path: "/get-flights-date"
-            },
-            params: {
-                departureDate: { type: "string", min: 2 }
-            },
-            async handler(ctx) {
-                try {
-                    return await new Promise((resolve, reject) => {
-                        try {
-                            request.get(`${ process.env.INTERNAL_URL }/get-flights-date?departureDate=${ ctx.params.departureDate }`, (err, resp, body) => {
-                                if (resp.statusCode != 200) {
-                                    this.logger.info("Error occurred!", err);
-                                    reject(resp.statusMessage);
-                                }
-                                let response;
-                                try{
-                                    response = JSON.parse(body);
-                                }
-                                catch(e){
-                                    response = body;
-                                }
-                                resolve({ message: "Success!", data: response });
-                            });
-                        } catch (err) {
-                            reject(err);
-                        }
-                    });
-                } catch (err) {
-                    this.logger.info(err);
-                    throw new MoleculerError("Server side error occurred!", 500);
-                }
-            }
-        },
-
-        // // ***** UNTESTED SECTION *****
-
-        // /**
-        //  * To get or confirm the price of a flight and obtain information about taxes and fees to be applied to the entire journey.
-        //  * It also retrieves ancillary information (e.g. additional bag or extra legroom seats pricing) and the payment information details requested at booking time.
-        //  */
-        // pricing: {
-        //     rest: {
-        //         methods: "POST",
-        //         path: "/offers/pricing"
-        //     },
-        //     params: {
-        //         flightOffers: { type: "string" },
-        //         username: { type: "string", min: 2 }
-        //     },
-        //     async handler(ctx) {
-        //         try {
-        //             return amadeus.shopping.flightOffers.pricing.post({
-        //                     data: {
-        //                         type: "flight-offers-pricing",
-        //                         flightOffers: ctx.params.flightOffers
-        //                     }
-        //                 })
-        //                 .then(response => {
-        //                     this.broker.emit("gateway.note", {
-        //                         measurement: "user-request",
-        //                         tags: {
-        //                             group: ["pricing"]
-        //                         },
-        //                         fields: {
-        //                             ...ctx.params
-        //                         }
-        //                     });
-        //                     return { data: response.data, message: "Success!" };
-        //                 })
-        //                 .catch(err => {
-        //                     this.logger.info(err);
-        //                     throw new MoleculerError("Server side error occurred!", 500);
-        //                 });
-
-        //         } catch (err) {
-        //             this.logger.info(err);
-        //             throw new MoleculerError("Server side error occurred!", 500);
-        //         }
-        //     }
-        // },
-
-        // /**
-        //  * To book the selected flight-offer and create a flight-order
-        //  */
-        // bookOrder: {
-        //     rest: {
-        //         methods: "POST",
-        //         path: "/order/book"
-        //     },
-        //     params: {
-        //         flightOffers: { type: "string" },
-        //         travelers_info: { type: "string" },
-        //         username: { type: "string", min: 2 }
-        //     },
-        //     async handler(ctx) {
-        //         try {
-        //             return amadeus.booking.flightOrders.post({
-        //                     type: "flight-order",
-        //                     flightOffers: ctx.params.flightOffers,
-        //                     travelers_info: ctx.params.travelers_info
-        //                 })
-        //                 .then(response => {
-        //                     this.broker.emit("gateway.note", {
-        //                         measurement: "user-request",
-        //                         tags: {
-        //                             group: ["booking"]
-        //                         },
-        //                         fields: {
-        //                             ...ctx.params
-        //                         }
-        //                     });
-        //                     return { data: response.data, message: "Success!" }
-        //                 })
-        //                 .catch(err => {
-        //                     this.logger.info(err);
-        //                     throw new MoleculerError("Server side error occurred!", 500);
-        //                 });
-
-        //         } catch (err) {
-        //             this.logger.info(err);
-        //             throw new MoleculerError("Server side error occurred!", 500);
-        //         }
-        //     }
-        // },
-
-        // /**
-        //  * To retrieve a flight order based on its id.
-        //  */
-        // getOrder: {
-        //     rest: {
-        //         methods: "GET",
-        //         path: "/order"
-        //     },
-        //     params: {
-        //         orderId: { type: "string", min: 1 },
-        //         username: { type: "string", min: 2 }
-        //     },
-        //     async handler(ctx) {
-        //         try {
-        //             return amadeus.booking.flightOrder
-        //                 .get(ctx.params.orderId)
-        //                 .then(response => {
-        //                     this.broker.emit("gateway.note", {
-        //                         measurement: "user-request",
-        //                         tags: {
-        //                             group: ["booking-info"]
-        //                         },
-        //                         fields: {
-        //                             ...ctx.params
-        //                         }
-        //                     });
-        //                     return { data: response.data, message: "Success!" }
-        //                 })
-        //                 .catch(err => {
-        //                     this.logger.info(err);
-        //                     throw new MoleculerError("Server side error occurred!", 500);
-        //                 });
-
-        //         } catch (err) {
-        //             this.logger.info(err);
-        //             throw new MoleculerError("Server side error occurred!", 500);
-        //         }
-        //     }
-        // },
-
-        // /**
-        //  * To cancel a flight order based on its id.
-        //  */
-        // deleteOrder: {
-        //     rest: {
-        //         methods: "DELETE",
-        //         path: "/order/delete"
-        //     },
-        //     params: {
-        //         orderId: { type: "string", min: 1 },
-        //         username: { type: "string", min: 2 }
-        //     },
-        //     async handler(ctx) {
-        //         try {
-        //             return amadeus.booking.flightOrder
-        //                 .delete(ctx.params.orderId)
-        //                 .then(response => {
-        //                     this.broker.emit("gateway.note", {
-        //                         measurement: "user-request",
-        //                         tags: {
-        //                             group: ["booking-cancel"]
-        //                         },
-        //                         fields: {
-        //                             ...ctx.params
-        //                         }
-        //                     });
-        //                     return { data: response.data, message: "Success!" }
-        //                 })
-        //                 .catch(err => {
-        //                     this.logger.info(err);
-        //                     throw new MoleculerError("Server side error occurred!", 500);
-        //                 });
-
-        //         } catch (err) {
-        //             this.logger.info(err);
-        //             throw new MoleculerError("Server side error occurred!", 500);
-        //         }
-        //     }
-        // },
-
-        // /**
-        //  * Get available seats in different fare classes
-        //  */
-        // availabilities: {
-        //     rest: {
-        //         methods: "GET",
-        //         path: "/availabilities"
-        //     },
-        //     params: {
-        //         username: { type: "string", min: 3 }
-        //     },
-        //     async handler(ctx) {
-        //         try {
-        //             return amadeus.shopping.availability.flightAvailabilities
-        //                 .post(ctx.params)
-        //                 .then(response => {
-        //                     this.broker.emit("gateway.note", {
-        //                         measurement: "user-request",
-        //                         tags: {
-        //                             group: ["availabilities"]
-        //                         },
-        //                         fields: {
-        //                             ...ctx.params
-        //                         }
-        //                     });
-        //                     return { data: response.data, message: "Success!" }
-        //                 }).catch(err => {
-        //                     this.logger.info(err);
-        //                     throw new MoleculerError("Server side error occurred!", 500);
-        //                 });
-
-        //         } catch (err) {
-        //             this.logger.info(err);
-        //             throw new MoleculerError("Server side error occurred!", 500);
-        //         }
-        //     }
-        // },
+        }
     },
 
     /**
@@ -959,9 +617,9 @@ module.exports = {
     },
 
     /**
-     * Methods
+     * method
      */
-    methods: {
+    method: {
 
     },
 

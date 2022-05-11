@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: "3.0.3"
 info:
   title: Flight bookings API
   description: |
@@ -469,6 +469,7 @@ paths:
       summary: Get flight dates
       description: Find the cheapest flight dates from an origin to a destination
       operationId: dates
+      deprecated: true
       tags:
         - flights
         - search
@@ -504,7 +505,7 @@ paths:
                     type: string
                   data:
                     type: object
-  /flights/offers/search:
+  /flights/offers:
     get:
       summary: Get flight offers
       description: Return cheapest flight recommendations and prices on a given journey
@@ -666,7 +667,7 @@ paths:
                     businessName: OPENSKIES
                     commonName: OPENSKIES
                 message: Success!
-  /flights/get-ticket:
+  /flights/tickets/{ticketId}:
     get:
       summary: Get ticket
       description: Get a booked ticket by its id
@@ -676,11 +677,11 @@ paths:
         - booking
       parameters:
         - name: ticketId
-          in: query
+          in: path
           required: true
           schema:
             type: string
-          example: 627306b7178af0708237e4a8
+          example: 627bff5903b13bbe3f8205fa
       responses:
         "200":
           description: "OK"
@@ -698,19 +699,193 @@ paths:
                         type: string
                       ticketOffer:
                         type: object
-                        properties:
-                          ticketOfferId:
-                            type: string
+                      departureDate:
+                        type: object
+                      arrivalDate:
+                        type: object
                       _id:
-                        type: string
+                        type: object
               example:
                 message: Success!
                 data:
+                  _id:
+                    $oid: 627bff5903b13bbe3f8205fa
                   username: Stef
                   ticketOffer:
-                    ticketOfferId: Offer123
-                  _id: 627306b7178af0708237e4a8
-  /flights/get-tickets:
+                    type: flight-offer
+                    id: '3'
+                    source: GDS
+                    instantTicketingRequired: false
+                    nonHomogeneous: false
+                    oneWay: false
+                    lastTicketingDate: '2022-05-12'
+                    numberOfBookableSeats: 3
+                    itineraries:
+                      - duration: PT6H30M
+                        segments:
+                          - departure:
+                              iataCode: BOS
+                              terminal: A
+                              at: '2022-08-30T07:15:00'
+                            arrival:
+                              iataCode: LAX
+                              terminal: '2'
+                              at: '2022-08-30T10:45:00'
+                            carrierCode: DL
+                            number: '312'
+                            aircraft:
+                              code: 75W
+                            operating:
+                              carrierCode: DL
+                            duration: PT6H30M
+                            id: '191'
+                            numberOfStops: 0
+                            blacklistedInEU: false
+                    price:
+                      currency: EUR
+                      total: '117.02'
+                      base: '96.00'
+                      fees:
+                        - amount: '0.00'
+                          type: SUPPLIER
+                        - amount: '0.00'
+                          type: TICKETING
+                      grandTotal: '117.02'
+                    pricingOptions:
+                      fareType:
+                        - PUBLISHED
+                      includedCheckedBagsOnly: false
+                    validatingAirlineCodes:
+                      - DL
+                    travelerPricings:
+                      - travelerId: '1'
+                        fareOption: STANDARD
+                        travelerType: ADULT
+                        price:
+                          currency: EUR
+                          total: '117.02'
+                          base: '96.00'
+                        fareDetailsBySegment:
+                          - segmentId: '191'
+                            cabin: ECONOMY
+                            fareBasis: VAVNA0BQ
+                            brandedFare: BASICECON
+                            class: E
+                            includedCheckedBags:
+                              quantity: 0
+                  departureDate:
+                    $date: '2022-08-30T07:15:00Z'
+                  arrivalDate:
+                    $date: '2022-08-30T10:45:00Z'
+    delete:
+      summary: Delete a booking
+      description: Cancel a booked ticket
+      tags:
+        - flights
+        - booking
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 627bff5903b13bbe3f8205fa
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                      message:
+                        type: string
+                      data:
+                        type: object
+                        properties:
+                          _id:
+                            type: object
+                          username:
+                            type: string
+                          ticketOffer:
+                            type: object
+                          departureDate:
+                            type: object
+                          arrivalDate:
+                            type: object
+                example:
+                  message: Success!
+                  data:
+                    _id:
+                      $oid: 627bff5903b13bbe3f8205fa
+                    username: Stef
+                    ticketOffer:
+                      type: flight-offer
+                      id: '3'
+                      source: GDS
+                      instantTicketingRequired: false
+                      nonHomogeneous: false
+                      oneWay: false
+                      lastTicketingDate: '2022-05-12'
+                      numberOfBookableSeats: 3
+                      itineraries:
+                        - duration: PT6H30M
+                          segments:
+                            - departure:
+                                iataCode: BOS
+                                terminal: A
+                                at: '2022-08-30T07:15:00'
+                              arrival:
+                                iataCode: LAX
+                                terminal: '2'
+                                at: '2022-08-30T10:45:00'
+                              carrierCode: DL
+                              number: '312'
+                              aircraft:
+                                code: 75W
+                              operating:
+                                carrierCode: DL
+                              duration: PT6H30M
+                              id: '191'
+                              numberOfStops: 0
+                              blacklistedInEU: false
+                      price:
+                        currency: EUR
+                        total: '117.02'
+                        base: '96.00'
+                        fees:
+                          - amount: '0.00'
+                            type: SUPPLIER
+                          - amount: '0.00'
+                            type: TICKETING
+                        grandTotal: '117.02'
+                      pricingOptions:
+                        fareType:
+                          - PUBLISHED
+                        includedCheckedBagsOnly: false
+                      validatingAirlineCodes:
+                        - DL
+                      travelerPricings:
+                        - travelerId: '1'
+                          fareOption: STANDARD
+                          travelerType: ADULT
+                          price:
+                            currency: EUR
+                            total: '117.02'
+                            base: '96.00'
+                          fareDetailsBySegment:
+                            - segmentId: '191'
+                              cabin: ECONOMY
+                              fareBasis: VAVNA0BQ
+                              brandedFare: BASICECON
+                              class: E
+                              includedCheckedBags:
+                                quantity: 0
+                    departureDate:
+                      $date: '2022-08-30T07:15:00Z'
+                    arrivalDate:
+                      $date: '2022-08-30T10:45:00Z'
+  /flights/myTickets/{username}:
     get:
       summary: Get tickets for a user
       description: Return all tickets for a specific user
@@ -720,7 +895,7 @@ paths:
         - booking
       parameters:
         - name: username
-          in: query
+          in: path
           required: true
           schema:
             type: string
@@ -744,125 +919,151 @@ paths:
                           type: string
                         ticketOffer:
                           type: object
-                          properties:
-                            ticketOfferId:
-                              type: string
                         _id:
                           type: string
               example:
                 message: Success!
                 data:
+                  - _id:
+                      $oid: 627bff5903b13bbe3f8205fa
                     username: Stef
                     ticketOffer:
-                      ticketOfferId: Offer123
-                    _id: 627306b7178af0708237e4a8
-  /flights/get-flights:
-    get:
-      summary: Get flights for a destination
-      description: Return all flights with a specific destination
-      operationId: get_flights
-      tags:
-        - flights
-        - booking
-        - search
-      parameters:
-        - name: destination
-          in: query
-          required: true
-          schema:
-            type: string
-          example: BOS
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        username:
-                          type: string
-                        origin:
-                          type: string
-                        destination:
-                          type: string
-                        departureDate:
-                          type: string
-                        _id:
-                          type: object
-                          properties:
-                            "$oid":
-                              type: string
-              example:
-                message: Success!
-                data:
-                  - username: Tea
-                    origin: BGD
-                    destination: BOS
-                    departureDate: '2022-09-12'
-                    _id: 
-                      "$oid": 627678b103b66099b46de4b2
-  /flights/get-flights-date:
-    get:
-      summary: Get flights for a departure date
-      description: Return all flights for a specific departure date
-      operationId: get_flights_date
-      tags:
-        - flights
-        - booking
-        - search
-      parameters:
-        - name: departureDate
-          in: query
-          required: true
-          schema:
-            type: string
-          example: '2021-05-10'
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        username:
-                          type: string
-                        origin:
-                          type: string
-                        destination:
-                          type: string
-                        departureDate:
-                          type: string
-                        _id:
-                          type: object
-                          properties:
-                            "$oid":
-                              type: string
-              example:
-                message: Success!
-                data:
-                  - username: Emina
-                    origin: BGD
-                    destination: LAX
-                    departureDate: '2021-05-10'
-                    _id: 
-                      "$oid": 62751639f84f6ebf732ddf98
-  /flights/book-a-ticket:
+                      type: flight-offer
+                      id: '3'
+                      source: GDS
+                      instantTicketingRequired: false
+                      nonHomogeneous: false
+                      oneWay: false
+                      lastTicketingDate: '2022-05-12'
+                      numberOfBookableSeats: 3
+                      itineraries:
+                        - duration: PT6H30M
+                          segments:
+                            - departure:
+                                iataCode: BOS
+                                terminal: A
+                                at: '2022-08-30T07:15:00'
+                              arrival:
+                                iataCode: LAX
+                                terminal: '2'
+                                at: '2022-08-30T10:45:00'
+                              carrierCode: DL
+                              number: '312'
+                              aircraft:
+                                code: 75W
+                              operating:
+                                carrierCode: DL
+                              duration: PT6H30M
+                              id: '191'
+                              numberOfStops: 0
+                              blacklistedInEU: false
+                      price:
+                        currency: EUR
+                        total: '117.02'
+                        base: '96.00'
+                        fees:
+                          - amount: '0.00'
+                            type: SUPPLIER
+                          - amount: '0.00'
+                            type: TICKETING
+                        grandTotal: '117.02'
+                      pricingOptions:
+                        fareType:
+                          - PUBLISHED
+                        includedCheckedBagsOnly: false
+                      validatingAirlineCodes:
+                        - DL
+                      travelerPricings:
+                        - travelerId: '1'
+                          fareOption: STANDARD
+                          travelerType: ADULT
+                          price:
+                            currency: EUR
+                            total: '117.02'
+                            base: '96.00'
+                          fareDetailsBySegment:
+                            - segmentId: '191'
+                              cabin: ECONOMY
+                              fareBasis: VAVNA0BQ
+                              brandedFare: BASICECON
+                              class: E
+                              includedCheckedBags:
+                                quantity: 0
+                    departureDate:
+                      $date: '2022-08-30T07:15:00Z'
+                    arrivalDate:
+                      $date: '2022-08-30T10:45:00Z'
+                  - _id:
+                      $oid: 627bff6e03b13bbe3f8205fb
+                    username: Stef
+                    ticketOffer:
+                      type: flight-offer
+                      id: '3'
+                      source: GDS
+                      instantTicketingRequired: false
+                      nonHomogeneous: false
+                      oneWay: false
+                      lastTicketingDate: '2022-05-12'
+                      numberOfBookableSeats: 3
+                      itineraries:
+                        - duration: PT6H30M
+                          segments:
+                            - departure:
+                                iataCode: BOS
+                                terminal: A
+                                at: '2022-08-30T07:15:00'
+                              arrival:
+                                iataCode: LAX
+                                terminal: '2'
+                                at: '2022-08-30T10:45:00'
+                              carrierCode: DL
+                              number: '312'
+                              aircraft:
+                                code: 75W
+                              operating:
+                                carrierCode: DL
+                              duration: PT6H30M
+                              id: '191'
+                              numberOfStops: 0
+                              blacklistedInEU: false
+                      price:
+                        currency: EUR
+                        total: '117.02'
+                        base: '96.00'
+                        fees:
+                          - amount: '0.00'
+                            type: SUPPLIER
+                          - amount: '0.00'
+                            type: TICKETING
+                        grandTotal: '117.02'
+                      pricingOptions:
+                        fareType:
+                          - PUBLISHED
+                        includedCheckedBagsOnly: false
+                      validatingAirlineCodes:
+                        - DL
+                      travelerPricings:
+                        - travelerId: '1'
+                          fareOption: STANDARD
+                          travelerType: ADULT
+                          price:
+                            currency: EUR
+                            total: '117.02'
+                            base: '96.00'
+                          fareDetailsBySegment:
+                            - segmentId: '191'
+                              cabin: ECONOMY
+                              fareBasis: VAVNA0BQ
+                              brandedFare: BASICECON
+                              class: E
+                              includedCheckedBags:
+                                quantity: 0
+                    departureDate:
+                      $date: '2022-08-30T07:15:00Z'
+                    arrivalDate:
+                      $date: '2022-08-30T10:45:00Z'
+                
+  /flights/tickets:
     post:
       summary: Book a ticket
       description: Book a flight ticket provided by Amadeus API
@@ -882,13 +1083,70 @@ paths:
                   type: string
                 ticketOffer:
                   type: object
-                  properties:
-                    ticketOfferId:
-                      type: string
               example:
-                username: Stef
+                username: Stefan
                 ticketOffer:
-                  ticketOfferId: Offer123
+                  type: flight-offer
+                  id: '3'
+                  source: GDS
+                  instantTicketingRequired: false
+                  nonHomogeneous: false
+                  oneWay: false
+                  lastTicketingDate: '2022-05-12'
+                  numberOfBookableSeats: 3
+                  itineraries:
+                    - duration: PT6H30M
+                      segments:
+                        - departure:
+                            iataCode: BOS
+                            terminal: A
+                            at: '2022-08-30T07:15:00'
+                          arrival:
+                            iataCode: LAX
+                            terminal: '2'
+                            at: '2022-08-30T10:45:00'
+                          carrierCode: DL
+                          number: '312'
+                          aircraft:
+                            code: 75W
+                          operating:
+                            carrierCode: DL
+                          duration: PT6H30M
+                          id: '191'
+                          numberOfStops: 0
+                          blacklistedInEU: false
+                  price:
+                    currency: EUR
+                    total: '117.02'
+                    base: '96.00'
+                    fees:
+                      - amount: '0.00'
+                        type: SUPPLIER
+                      - amount: '0.00'
+                        type: TICKETING
+                    grandTotal: '117.02'
+                  pricingOptions:
+                    fareType:
+                      - PUBLISHED
+                    includedCheckedBagsOnly: false
+                  validatingAirlineCodes:
+                    - DL
+                  travelerPricings:
+                    - travelerId: '1'
+                      fareOption: STANDARD
+                      travelerType: ADULT
+                      price:
+                        currency: EUR
+                        total: '117.02'
+                        base: '96.00'
+                      fareDetailsBySegment:
+                        - segmentId: '191'
+                          cabin: ECONOMY
+                          fareBasis: VAVNA0BQ
+                          brandedFare: BASICECON
+                          class: E
+                          includedCheckedBags:
+                            quantity: 0
       responses:
         "200":
           description: OK
@@ -910,169 +1168,147 @@ paths:
                       ticketOfferId: Offer123
                     _id: 
                       "$oid": 627306b7178af0708237e4a8
-  /flights/book-a-flight:
-    post:
-      summary: Book a flight
-      description: Book a flight provided by Amadeus API
-      operationId: book_a_flight
-      tags:
-        - flights
-        - booking
-      requestBody:
-        description: Parameters are username, origin, destination and departure date
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                origin:
-                  type: string
-                destination:
-                  type: string
-                departureDate:
-                  type: string
-              example:
-                username: Tea
-                origin: BGD
-                destination: BOS
-                departureDate: '2022-09-12'
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  _id:
-                    type: object
-                    properties:
-                      "$oid":
-                        type: string
-                example:
-                  message: Success!
-                  data:
-                    username: Tea
-                    origin: BGD
-                    destination: BOS
-                    departureDate: '2022-09-12'
-                    _id: 
-                      "$oid": 627678b103b66099b46de4b2
-  /flights/change-user:
     patch:
-      summary: Change username
-      description: Change given username for specific offer
-      operationId: change_user
-      tags:
-        - flights
-        - booking
-      requestBody:
-        description: Parameters are id of a ticket and username
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                ticketId:
-                  type: string
-                username:
-                  type: string
-              example:
-                ticketId: 6276e64dea3fa53017cba21d
-                username: Stefan
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  _id: 
-                    type: string
-                  username: 
-                    type: string
-                example:
-                  message: Success!
-                  data:
-                    username: Stefan
-                    ticketOffer: 
-                      ticketOfferId: OfferNew
-                    _id: 6276e64dea3fa53017cba21d
-  /flights/change-ticket-info:
-    patch:
-      summary: Change ticket
-      description: Change given username and departure date for a specific booking
-      operationId: change_ticket_info
-      tags:
-        - flights
-        - booking
-      requestBody:
-        description: Parameters are id of a ticket, username and departure date
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                ticketId:
-                  type: string
-                username:
-                  type: string
-                departureDate:
-                  type: string
-              example:
-                ticketId: 6274512a9495d42272155a35
-                username: Mina
-                departureDate: '2022-10-10'
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  _id: 
-                    type: object
-                    properties:
-                      "$oid":
-                        type: string
-                  username: 
-                    type: string
-                  origin:
-                    type: string
-                  destination: 
-                    type: string
-                  departureDate: 
-                    type: string
-                example:
-                  message: Success!
-                  data:
-                    username: Mina
-                    origin: BGD
-                    destination: LAX
-                    departureDate: '2022-10-10'
-                    _id: 
-                      "$oid": 6276e64dea3fa53017cba21d
-  /flights/cancel-a-ticket:
-    delete:
-      summary: Delete a booking
-      description: Cancel a booked ticket
-      tags:
-        - flights
-        - booking
-      parameters:
-        - name: ticketId
-          in: query
+        summary: Change ticket
+        description: Change given username, departure or arrival date for a specific booking
+        operationId: change_ticket_info
+        tags:
+          - flights
+          - booking
+        requestBody:
+          description: Parameters are id of a ticket, username and departure date
           required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticketId:
+                    type: string
+                  username:
+                    type: string
+                  departureDate:
+                    type: string
+                  arrivalDate:
+                    type: string
+                  info:
+                    type: string
+                example:
+                  ticketId: 627bff2d03b13bbe3f8205f9
+                  username: Mina
+                  departureDate: '2022-10-10'
+                  arrivalDate: '2022-10-13'
+                  info: "Delay due to dense air traffic."
+        responses:
+          "200":
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    data:
+                      type: object
+                  example:
+                    message: Success!
+                    data:
+                      notification-type: Flight info modified
+                      info: Delay due to dense air traffic.
+                      ticket:
+                        _id:
+                          $oid: 627b89e46c66808f8b06113d
+                        username: Mina
+                        ticketOffer:
+                          type: flight-offer
+                          id: '1'
+                          source: GDS
+                          instantTicketingRequired: false
+                          nonHomogeneous: false
+                          oneWay: false
+                          lastTicketingDate: '2022-05-12'
+                          numberOfBookableSeats: 3
+                          itineraries:
+                            - duration: PT6H23M
+                              segments:
+                                - departure:
+                                    iataCode: BOS
+                                    terminal: A
+                                    at: '2022-08-30T15:25:00'
+                                  arrival:
+                                    iataCode: LAX
+                                    terminal: '2'
+                                    at: '2022-08-30T18:48:00'
+                                  carrierCode: DL
+                                  number: '519'
+                                  aircraft:
+                                    code: 75W
+                                  operating:
+                                    carrierCode: DL
+                                  duration: PT6H23M
+                                  id: '146'
+                                  numberOfStops: 0
+                                  blacklistedInEU: false
+                          price:
+                            currency: EUR
+                            total: '117.02'
+                            base: '96.00'
+                            fees:
+                              - amount: '0.00'
+                                type: SUPPLIER
+                              - amount: '0.00'
+                                type: TICKETING
+                            grandTotal: '117.02'
+                          pricingOptions:
+                            fareType:
+                              - PUBLISHED
+                            includedCheckedBagsOnly: false
+                          validatingAirlineCodes:
+                            - DL
+                          travelerPricings:
+                            - travelerId: '1'
+                              fareOption: STANDARD
+                              travelerType: ADULT
+                              price:
+                                currency: EUR
+                                total: '117.02'
+                                base: '96.00'
+                              fareDetailsBySegment:
+                                - segmentId: '146'
+                                  cabin: ECONOMY
+                                  fareBasis: VAVNA0BQ
+                                  brandedFare: BASICECON
+                                  class: E
+                                  includedCheckedBags:
+                                    quantity: 0
+                        departureDate:
+                          $date: '2022-10-10T00:00:00Z'
+                        arrivalDate:
+                          $date: '2022-10-13T00:00:00Z'
+                      changes:
+                        username: Mina
+                        departureDate:
+                          $date: '2022-10-10T00:00:00Z'
+                        arrivalDate:
+                          $date: '2022-10-13T00:00:00Z'
+                      _id:
+                        $oid: 627bf00fa7b7cd54dbfa1358
+  /flights/notifications/{username}:
+    get:
+      summary: Get notifications
+      description: Returns notifications for a specified username.
+      operationId: get_notifications
+      tags:
+        - flights
+        - notifications
+      parameters:
+        - name: username
+          required: true
+          in: path
           schema:
             type: string
-          example: 627257b37210c8f95ba25d93
+          example: Stefan
       responses:
         "200":
           description: "OK"
@@ -1085,11 +1321,182 @@ paths:
                     type: string
                   data:
                     type: object
-              example: 
-                message: Success!
-                data:
-                  _id:
-                    $oid: 62730146b835f62ae84b7838
-                  username: Stef
-                  ticketOffer:
-                    ticketOfferId: Offer123
+                example:
+                  message: Success!
+                  data:
+                    - _id:
+                        $oid: 627bf16ea7b7cd54dbfa1359
+                      notification-type: Flight delayed
+                      info: Bad weather conditions
+                      newDepartureDate:
+                        $date: '2022-08-31T15:25:00Z'
+                      newarrivalDate:
+                        $date: '2022-08-31T18:48:00Z'
+                      ticket:
+                        username: Stef
+                        ticketOffer:
+                          type: flight-offer
+                          id: '1'
+                          source: GDS
+                          instantTicketingRequired: false
+                          nonHomogeneous: false
+                          oneWay: false
+                          lastTicketingDate: '2022-05-12'
+                          numberOfBookableSeats: 3
+                          itineraries:
+                            - duration: PT6H23M
+                              segments:
+                                - departure:
+                                    iataCode: BOS
+                                    terminal: A
+                                    at: '2022-08-30T15:25:00'
+                                  arrival:
+                                    iataCode: LAX
+                                    terminal: '2'
+                                    at: '2022-08-30T18:48:00'
+                                  carrierCode: DL
+                                  number: '519'
+                                  aircraft:
+                                    code: 75W
+                                  operating:
+                                    carrierCode: DL
+                                  duration: PT6H23M
+                                  id: '146'
+                                  numberOfStops: 0
+                                  blacklistedInEU: false
+                          price:
+                            currency: EUR
+                            total: '117.02'
+                            base: '96.00'
+                            fees:
+                              - amount: '0.00'
+                                type: SUPPLIER
+                              - amount: '0.00'
+                                type: TICKETING
+                            grandTotal: '117.02'
+                          pricingOptions:
+                            fareType:
+                              - PUBLISHED
+                            includedCheckedBagsOnly: false
+                          validatingAirlineCodes:
+                            - DL
+                          travelerPricings:
+                            - travelerId: '1'
+                              fareOption: STANDARD
+                              travelerType: ADULT
+                              price:
+                                currency: EUR
+                                total: '117.02'
+                                base: '96.00'
+                              fareDetailsBySegment:
+                                - segmentId: '146'
+                                  cabin: ECONOMY
+                                  fareBasis: VAVNA0BQ
+                                  brandedFare: BASICECON
+                                  class: E
+                                  includedCheckedBags:
+                                    quantity: 0
+                        departureDate:
+                          $date: '2022-08-30T15:25:00Z'
+                        arrivalDate:
+                          $date: '2022-08-30T18:48:00Z'
+                      username: Stefan
+  /weather/forecast/{startDate}/{endDate}:
+    get:
+      summary: Get weather forecast
+      description: Return weather forecast information for a specific period
+      operationId: weather_forecast
+      tags:
+        - weather
+        - forecast
+      parameters:
+        - name: startDate
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "2021-01-01"
+        - name: endDate
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "2021-01-02"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        precipitation:
+                          type: number
+                        temp_max:
+                          type: number
+                        temp_min:
+                          type: number
+                        weather:
+                          type: string
+                        wind:
+                          type: number
+                        _id:
+                          type: object
+                          properties:
+                            "$oid":
+                              type: string
+                        date:
+                          type: object
+                          properties:
+                            "$date":
+                              type: string
+                example:
+                  message: Success!
+                  data:
+                    - _id:
+                        $oid: 627b69e63a63f2fc5de53fc6
+                      date:
+                        $date: '2021-01-01T00:00:00Z'
+                      precipitation: 21
+                      temp_max: 12.8
+                      temp_min: 5
+                      weather: drizzle
+                      wind: 4.7
+                    - _id:
+                        $oid: 627b69e93a63f2fc5de54648
+                      date:
+                        $date: '2021-01-02T00:00:00Z'
+                      precipitation: 10.9
+                      temp_max: 10.6
+                      temp_min: 2.8
+                      weather: rain
+                      wind: 4.5
+  /weather/start:
+    put:
+      summary: Start weather service
+      description: Start receviving weather info
+      operationId: weather_start
+      tags:
+        - weather
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                example:
+                  message: "Success!"
+                  data: {}

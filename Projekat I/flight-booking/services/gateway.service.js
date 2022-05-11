@@ -5,6 +5,9 @@ require('dotenv').config({ path: "docker-compose.env" });
 const ApiGateway = require("moleculer-web");
 const request = require('request');
 
+const MAX_WIND = 15;
+const MAX_PRECIPITATION = 20;
+
 const { MoleculerError } = require("moleculer").Errors;
 
 /**
@@ -124,10 +127,94 @@ module.exports = {
     },
 
     methods: {
-
+        badWeatherConditions(data) {
+            return data['wind'] > MAX_WIND || data['precipitation'] > MAX_PRECIPITATION;
+        },
+        delayFlights(data) {
+            try {
+                new Promise((resolve, reject) => {
+                    try {
+                        request.post(`${ process.env.INTERNAL_URL }/delay-flights`, {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        }, (err, resp, body) => {
+                            if (resp.statusCode != 200) {
+                                this.logger.info("Error occurred!", err);
+                                reject(resp.statusMessage);
+                            }
+                            let response;
+                            try{
+                                response = JSON.parse(body);
+                            }
+                            catch(e){
+                                response = body;
+                            }
+                            resolve({ message: "Success!", data: response });
+                        });
+                    } catch (err) {
+                        reject(err);
+                    }
+                })
+                .catch(res => this.logger.info(res));
+            } catch (err) {
+                this.logger.info(err);
+                throw new MoleculerError("Server side error occurred!", 500);
+            }
+        },
+        logWeather(data) {
+            try {
+                new Promise((resolve, reject) => {
+                    try {
+                        request.post(`${ process.env.INTERNAL_URL }/weather`, {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        }, (err, resp, body) => {
+                            if (resp.statusCode != 200) {
+                                this.logger.info("Error occurred here", resp.statusMessage);
+                                reject(resp.statusMessage);
+                            }
+                            let response;
+                            try{
+                                response = JSON.parse(body);
+                            }
+                            catch(e){
+                                response = body;
+                            }
+                            resolve({ message: "Success!", data: response });
+                        });
+                    } catch (err) {
+                        reject(err);
+                    }
+                })
+                .catch(res => this.logger.info(res));
+            } catch (err) {
+                this.logger.info(err);
+                throw new MoleculerError("Server side error occurred!", 500);
+            }
+        }
     },
 
     events: {
+        "gateway.weather-reading": {
+            group: "weather",
+            async handler(ctx){
+                try {
+                    const data = ctx.params;
+                    this.logWeather(data);
+                    if(this.badWeatherConditions(data))
+                        this.delayFlights(data);
+                }
+                catch (err) {
+                    this.logger.info(err);
+                    throw new MoleculerError("Server side error occurred!", 500);
+                }
+            }
+        },
+
         "gateway.note": {
             group: "communication",
             async handler(ctx) {
@@ -163,5 +250,5 @@ module.exports = {
                 }
             }
         }
-    }
+    },
 };

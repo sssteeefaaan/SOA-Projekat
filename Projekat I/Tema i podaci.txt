@@ -1,4 +1,11 @@
 Tema: Aerodromi i bukiranje letova
 
-	Dataset: https://www.kaggle.com/datasets/thoudamyoihenba/airports?resource=download
-	Public API: https://developers.amadeus.com/ 
+	Dataset: https://www.kaggle.com/datasets/ananthr1/weather-prediction
+	Public API: https://developers.amadeus.com/
+
+Pokretanje projekta:
+	- Pozicioniranje u okviru flight-booking direktorijuma
+		cd "./Projekat I/flight-booking"
+	- Pokretanje docker-compose
+		docker-compose up --build
+	- Otvaranje pretrazivaca na localhost:80
