@@ -1,0 +1,5 @@
+packages:
+    default:
+        actions:
+            helloPython:
+                function: demo.py
