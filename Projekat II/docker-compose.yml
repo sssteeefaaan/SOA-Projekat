@@ -17,9 +17,9 @@ services:
       - "20498:20498"
     environment:
       - MQTT_SOURCE__DEFAULT__SERVER=tcp://mosquitto:1883
-  kuiper_manager:
+  ekuiper_manager:
     image: emqx/ekuiper-manager:1.4
-    container_name: kuiperManager
+    container_name: manager
     ports:
       - "9082:9082"
   nodejs:
