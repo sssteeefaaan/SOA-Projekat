@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option csharp_namespace = "Notifications";
+option go_package = "notifications";
+
+package notifications;
+
+service Notifications {
+    rpc Send(Notification) returns (Response) {}
+}
+
+message Notification {
+    string id = 1;
+    string sender = 2;
+    string receiver = 3;
+    string date = 4;
+    string payload = 5;
+}
+
+message Response {
+    string status = 1;
+}

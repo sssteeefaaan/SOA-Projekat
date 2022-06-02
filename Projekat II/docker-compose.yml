@@ -33,9 +33,10 @@ services:
       - "8080:8080"
     environment:
       - PORT=8080
-  grpc_notifications:
-    build: ./grpcNotifications
-    container_name: grpc_notifications
+      - "GRPC_URL=notifications:80"
+  notifications:
+    build: ./Notifications
+    container_name: notifications
     ports:
       - "9999:80"
       - "9998:443"
@@ -45,10 +46,10 @@ services:
     ports:
       - "9997:5000"
     depends_on:
-      - grpc_notifications
+      - notifications
       - mosquitto
     environment:
-      - "GRPC_URL=grpc_notifications:9999"
+      - "GRPC_URL=notifications:80"
       - MQTT_HOST=mosquitto
       - MQTT_PORT=1883
       - MQTT_SUB_CHANNEL=devices/notifications
