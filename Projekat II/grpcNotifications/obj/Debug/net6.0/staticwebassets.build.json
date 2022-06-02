@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "UkVT9XTvWNgXOAZmz5v5vHnCDALrauOrRCMhIHWu0vg=",
+  "Source": "GrpcNotifications",
+  "BasePath": "_content/GrpcNotifications",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
