@@ -1,43 +1,45 @@
-from flask import Flask, request, Response
+from datetime import datetime
 from paho.mqtt.client import Client, MQTTMessage
 from json import dumps, loads
 from grpc import insecure_channel
-from notifications_pb2_grpc import NotificationsStub
-from notifications_pb2 import Notification
+from alerts_pb2_grpc import AlertsStub
+from alerts_pb2 import Alert
 from os import environ
+from socket import gethostname
+from pymongo.mongo_client import MongoClient
 
-environ.setdefault("FLASK_ENV", "development")
+utcnow = datetime.utcnow
+MY_HOSTNAME = gethostname()
+MQTT_SUB_CHANNEL = environ.get("MQTT_SUB_CHANNEL", "services/alerts")
+GRPC_URL = environ.get("GRPC_URL", "localhost:9999")
 
-MQTT_SUB_CHANNEL = environ.get("MQTT_SUB_CHANNEL", "devices/notifications")
-MQTT_PUB_CHANNEL = environ.get("MQTT_PUB_CHANNEL", "devices/messages")
-
-stub = NotificationsStub(insecure_channel(environ.get("GRPC_URL", "localhost:9999")))
-print("Sent: ", stub.Send(Notification(id = "123", sender = "123", receiver = "123", date = "123", payload = "Hey")).status)
-
+stub = AlertsStub(insecure_channel(GRPC_URL))
 broker = Client()
 
-def onNotification(c: Client, userData, message: MQTTMessage):
+mongoDB = MongoClient(environ.get('MONGO_URL_LOCAL', "localhost:27017"))
+mongoAlerts = mongoDB.alerts
+#mongoAlerts.alerts.create_indexes([IndexModel([("username", 1)], name="username"), IndexModel([("departureDate", 1)], name="departureDate")])
+
+def onAlert(c: Client, userData, message: MQTTMessage):
+    try:
+        document = {
+            "sender": MY_HOSTNAME,
+            "receiver": GRPC_URL,
+            "date": utcnow(),
+            "payload": loads(message.payload)
+        }
+        document["id"] = str(mongoAlerts.alerts.insert_one(document).inserted_id)
+        print(stub.Send(Alert(id = document["id"], sender = document["sender"], receiver = document["receiver"], date = str(document["date"]), payload = dumps(document["payload"]))).status)
+    except Exception as e:
+        print("Error occurred:", str(e))
+
+def onMessageDefault(c: Client, userData, message: MQTTMessage):
     data = loads(message.payload)
     print("Payload:", data)
-    print(stub.Send(Notification(id = "123", sender = "123", receiver = "123", date = "123", payload = dumps(data))).status)
 
 broker.connect(environ.get("MQTT_HOST", "localhost"), int(environ.get("MQTT_PORT", "1883")))
 broker.subscribe(MQTT_SUB_CHANNEL)
-broker.message_callback_add(MQTT_SUB_CHANNEL, onNotification)
-broker.on_message = onNotification
+broker.message_callback_add(MQTT_SUB_CHANNEL, onAlert)
+broker.on_message = onMessageDefault
 
-app = Flask(__name__)
-
-@app.route("/publish", methods=["POST"])
-def publish():
-    try:
-        json = request.get_json()
-        assert "temperature" in json, "Body requires field 'temperature'"
-        assert "humidity" in json, "Body requires field 'humidity'"
-        broker.publish(MQTT_PUB_CHANNEL, dumps(json))
-        return Response(response=dumps({ "message": "success!" }), status=200, content_type="json")
-    except Exception as e:
-        return Response(response=dumps({ "error": str(e) }), status=500, content_type="json")
-
-broker.loop_start()
-app.run()
+broker.loop_forever()

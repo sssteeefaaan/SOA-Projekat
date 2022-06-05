@@ -20,7 +20,7 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<Protobuf Include="Protos\notifications.proto" GrpcServices="Server" />
+		<Protobuf Include="Protos\alerts.proto" GrpcServices="Server" />
 	</ItemGroup>
 
 </Project>
