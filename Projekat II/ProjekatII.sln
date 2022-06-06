@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcNotifications", "grpcNotifications\GrpcNotifications.csproj", "{B593446B-101E-4644-ACB5-4F165958856C}"
-EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Analytics", "analytics\Analytics.pyproj", "{EFA13ADC-20B6-4B97-AB2F-216759823235}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notifications", "Notifications\Notifications.csproj", "{40D15DB9-4456-4448-8764-3022D4C4B7C0}"
@@ -15,10 +13,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B593446B-101E-4644-ACB5-4F165958856C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B593446B-101E-4644-ACB5-4F165958856C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B593446B-101E-4644-ACB5-4F165958856C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B593446B-101E-4644-ACB5-4F165958856C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EFA13ADC-20B6-4B97-AB2F-216759823235}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EFA13ADC-20B6-4B97-AB2F-216759823235}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40D15DB9-4456-4448-8764-3022D4C4B7C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

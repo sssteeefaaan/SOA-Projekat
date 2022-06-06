@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime as dt
 from paho.mqtt.client import Client, MQTTMessage
 from json import dumps, loads
 from grpc import insecure_channel
@@ -8,7 +8,6 @@ from os import environ
 from socket import gethostname
 from pymongo.mongo_client import MongoClient
 
-utcnow = datetime.utcnow
 MY_HOSTNAME = gethostname()
 MQTT_SUB_CHANNEL = environ.get("MQTT_SUB_CHANNEL", "services/alerts")
 GRPC_URL = environ.get("GRPC_URL", "localhost:9999")
@@ -25,11 +24,11 @@ def onAlert(c: Client, userData, message: MQTTMessage):
         document = {
             "sender": MY_HOSTNAME,
             "receiver": GRPC_URL,
-            "date": utcnow(),
+            "date": dt.utcnow(),
             "payload": loads(message.payload)
         }
         document["id"] = str(mongoAlerts.alerts.insert_one(document).inserted_id)
-        print(stub.Send(Alert(id = document["id"], sender = document["sender"], receiver = document["receiver"], date = str(document["date"]), payload = dumps(document["payload"]))).status)
+        print(stub.Send(Alert(id = document["id"], sender = document["sender"], receiver = document["receiver"], date = document["date"].isoformat(), payload = dumps(document["payload"]))).status)
     except Exception as e:
         print("Error occurred:", str(e))
 

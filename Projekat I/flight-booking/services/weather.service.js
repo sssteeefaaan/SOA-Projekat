@@ -6,6 +6,7 @@ const request = require('request');
 const fs = require('fs');
 const csv = require('csv-parser');
 const { Context } = require("moleculer");
+const mqtt = require("mqtt");
 const CSV_FILE = process.env.CSV_FILE;
 
 const { MoleculerError } = require("moleculer").Errors;
@@ -114,6 +115,7 @@ module.exports = {
                 let index = 0;
                 const timeout = setInterval(() => {
                     this.broker.emit('gateway.weather-reading', dataset[index]);
+                    this.mosquitto.publish(process.env.PUBLISH_TOPIC, JSON.stringify(dataset[index]));
                     index += 1;
                     if(index == dataset.length)
                         clearInterval(timeout);
@@ -127,14 +129,17 @@ module.exports = {
      * Service created lifecycle event handler
      */
     created() {
-
     },
 
     /**
      * Service started lifecycle event handler
      */
     async started() {
-        //this.readFile();
+        this.logger.info('Connecting to mosquitto...', process.env.MOSQUITTO_URL);
+        this.mosquitto = mqtt.connect(process.env.MOSQUITTO_URL, { /*clientId: 'weather-service',*/ connectTimeout: 60 * 1000 });
+        this.mosquitto.on('connect', () => {
+            this.logger.info("Connected to mosquitto!");
+        });
     },
 
     /**

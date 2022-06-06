@@ -18,7 +18,7 @@ services:
       - "traefik.http.routers.api-gw.rule=PathPrefix(`/`)"
       - "traefik.http.services.api-gw.loadbalancer.server.port=3000"
     networks:
-      - internal
+      - flightbookings
 
   flights:
     build:
@@ -31,7 +31,7 @@ services:
       - influx
       - nats
     networks:
-      - internal
+      - flightbookings
       
   weather:
     build:
@@ -39,13 +39,15 @@ services:
     image: flight-booking
     env_file: docker-compose.env
     environment:
-      CSV_FILE: /var/lib/dataset/seattle-weather.csv
+      - CSV_FILE=/var/lib/dataset/seattle-weather.csv
+      - PUBLISH_TOPIC=services/weather
+      - MOSQUITTO_URL=tcp://mosquitto:1883
     volumes:
       - "./dataset:/var/lib/dataset"
     depends_on:
       - gateway
     networks:
-      - internal
+      - flightbookings
 
   internal_api:
     build:
@@ -66,7 +68,7 @@ services:
       - nats
       - mongo
     networks:
-      - internal
+      - flightbookings
     ports:
       - 99:5000
 
@@ -77,7 +79,7 @@ services:
     ports:
       - 8086:8086
     networks:
-      - internal
+      - flightbookings
 
   mongo:
     image: mongo:latest
@@ -90,7 +92,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=admin
     networks:
-      - internal
+      - flightbookings
     
   grafana:
     ports:
@@ -103,12 +105,12 @@ services:
     volumes:
       - "./persisted/grafana-storage/:/var/lib/grafana"
     networks:
-      - internal
+      - flightbookings
 
   nats:
     image: nats:latest
     networks:
-      - internal
+      - flightbookings
 
   traefik:
     image: traefik:latest
@@ -122,20 +124,22 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      - internal
-      - default
+      - flightbookings
   
   swagger-ui:
-   image: swaggerapi/swagger-ui
-   ports:
-      - "80:8080"
-   volumes:
-      - "./swagger-ui:/usr/share/nginx/html/doc"
-   environment:
-      API_URL: doc/openapi.yaml
+    image: swaggerapi/swagger-ui
+    ports:
+        - "80:8080"
+    volumes:
+        - "./swagger-ui:/usr/share/nginx/html/doc"
+    environment:
+        API_URL: doc/openapi.yaml
+    networks:
+      - flightbookings
 
 networks:
-  internal:
+  flightbookings:
+    external: true
 
 volumes:
   mongodb:
