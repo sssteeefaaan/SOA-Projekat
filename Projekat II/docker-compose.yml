@@ -6,9 +6,9 @@ services:
     ports:
       - "1883:1883"
     volumes:
-      - ./conf:/mosquitto/config
-      - ./data:/mosquitto/data
-      - ./log:/mosquitto/log
+      - ./mosquitto/conf:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
   ekuiper:
     image: lfedge/ekuiper:1.4-slim
     container_name: ekuiper
@@ -26,14 +26,6 @@ services:
       - ekuiper
     ports:
       - "9082:9082"
-  nodejs:
-    build: ./nodejs
-    container_name: nodejs
-    ports:
-      - "8080:8080"
-    environment:
-      - PORT=8080
-      - "GRPC_URL=notifications:80"
   notifications:
     build: ./Notifications
     container_name: notifications
