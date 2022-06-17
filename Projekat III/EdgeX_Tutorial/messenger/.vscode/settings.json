@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./paho.mqtt.python/src"
+    ]
+}
