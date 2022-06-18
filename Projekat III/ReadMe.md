@@ -2,26 +2,25 @@
 
 <ol>
 	<li>
-		Iz foldera ./Kod:<br/>
-		<b>docker-compose -p projekat3 up -d</b>
+		Iz foldera ./docker-compose:<br/>
+	```Batchfile
+		docker-compose -p projekat3 up -d
+	```
 	</li><br/>
 	<li>
-		Pokrenuti fajl ./EdgeX_Tutorial/deviceCreation/createSensorCluster.py:<br/>
-		<b>python createSensorCluster.py -ip 127.0.0.1</b>
+		Pokrenuti fajl ./device-creation/createSensorCluster.py:<br/>
+		```Batchfile
+			python createSensorCluster.py -ip 127.0.0.1
+		```
 	</li><br/>
 	<li>
 		Iz postman-a komanda GET http://0.0.0.0:48082/api/v1/device
 	</li><br/>
 	<li>
-		Pokrenuti fajl EdgeX_Tutorial/deviceCreation/createRESTDevice.py:<br/>
-		<b>python createRESTDevice.py -ip 127.0.0.1 -devip <uneti ID device-a iz postman-a> </b> [preferably c18d9df1-57eb-4ba3-9169-17b8c84ecb96 (Sensor_cluster_project_iii)]
-	</li><br/>
-	<li>
-		Pokrenuti fajl EdgeX_Tutorial/sensorDataGeneration/genSensorData.py:<br/>
-		<b>python genSensorData.py</b>
-	</li><br/>
-	<li>
-		Iz postman-a komanda GET http://0.0.0.0:48080/api/v1/reading i trebalo bi da se vide upisani podaci
+		Pokrenuti fajl ./device-creation/createRESTDevice.py:<br/>
+		```Batchfile
+		python createRESTDevice.py -ip 127.0.0.1 -devip color-changer-edgex
+		```
 	</li><br/>
 	<li>
 		Podesavanje vizuelizacije generisanih podataka u grafani
@@ -56,6 +55,15 @@
 		</ol>
 	</li><br/>
 	<li>
-		Komande za EdgeX ostale
+		Pokrenuti fajl ./sensor-data-gen/genSensorData.py:<br/>
+		```Batchfile
+			python genSensorData.py
+		```
 	</li><br/>
+	<li>
+		Iz postman-a komanda GET http://0.0.0.0:48080/api/v1/reading i trebalo bi da se vide upisani podaci
+	</li><br/>
+	<li>
+		U pretraživaču otvoriti http://localhost:5000
+	</li>
 </ol>
