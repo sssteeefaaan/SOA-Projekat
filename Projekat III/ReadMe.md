@@ -3,13 +3,13 @@
 <ol>
 	<li>
 		Iz foldera ./docker-compose:<br/>
-	```Batchfile
+	```cmd
 		docker-compose -p projekat3 up -d
 	```
 	</li><br/>
 	<li>
 		Pokrenuti fajl ./device-creation/createSensorCluster.py:<br/>
-		```Batchfile
+		```cmd
 			python createSensorCluster.py -ip 127.0.0.1
 		```
 	</li><br/>
@@ -18,7 +18,7 @@
 	</li><br/>
 	<li>
 		Pokrenuti fajl ./device-creation/createRESTDevice.py:<br/>
-		```Batchfile
+		```cmd
 		python createRESTDevice.py -ip 127.0.0.1 -devip color-changer-edgex
 		```
 	</li><br/>
@@ -56,7 +56,7 @@
 	</li><br/>
 	<li>
 		Pokrenuti fajl ./sensor-data-gen/genSensorData.py:<br/>
-		```Batchfile
+		```cmd
 			python genSensorData.py
 		```
 	</li><br/>
