@@ -3,13 +3,13 @@
 <ol>
 	<li>
 		Iz foldera ./docker-compose:<br/>
-	```cmd
+	```
 		docker-compose -p projekat3 up -d
 	```
 	</li><br/>
 	<li>
 		Pokrenuti fajl ./device-creation/createSensorCluster.py:<br/>
-		```cmd
+		```json
 			python createSensorCluster.py -ip 127.0.0.1
 		```
 	</li><br/>
