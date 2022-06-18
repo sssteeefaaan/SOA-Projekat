@@ -3,24 +3,18 @@
 <ol>
 	<li>
 		Iz foldera ./docker-compose:<br/>
-	```console
-		docker-compose -p projekat3 up -d
-	```
+		<pre>docker-compose -p projekat3 up -d</pre>
 	</li><br/>
 	<li>
 		Pokrenuti fajl ./device-creation/createSensorCluster.py:<br/>
-		```json
-			python createSensorCluster.py -ip 127.0.0.1
-		```
+		<pre>python createSensorCluster.py -ip 127.0.0.1</pre>
 	</li><br/>
 	<li>
 		Iz postman-a komanda GET http://0.0.0.0:48082/api/v1/device
 	</li><br/>
 	<li>
 		Pokrenuti fajl ./device-creation/createRESTDevice.py:<br/>
-		```cmd
-		python createRESTDevice.py -ip 127.0.0.1 -devip color-changer-edgex
-		```
+		<pre>python createRESTDevice.py -ip 127.0.0.1 -devip color-changer-edgex</pre>
 	</li><br/>
 	<li>
 		Podesavanje vizuelizacije generisanih podataka u grafani
@@ -56,9 +50,7 @@
 	</li><br/>
 	<li>
 		Pokrenuti fajl ./sensor-data-gen/genSensorData.py:<br/>
-		```cmd
-			python genSensorData.py
-		```
+		<pre>python genSensorData.py</pre>
 	</li><br/>
 	<li>
 		Iz postman-a komanda GET http://0.0.0.0:48080/api/v1/reading i trebalo bi da se vide upisani podaci
