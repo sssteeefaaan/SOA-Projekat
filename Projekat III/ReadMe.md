@@ -17,6 +17,13 @@
 		<pre>python createRESTDevice.py -ip 127.0.0.1 -devip color-changer-edgex</pre>
 	</li><br/>
 	<li>
+		Pokrenuti fajl ./sensor-data-gen/genSensorData.py:<br/>
+		<pre>python genSensorData.py</pre>
+	</li><br/>
+	<li>
+		Iz postman-a komanda GET http://0.0.0.0:48080/api/v1/reading i trebalo bi da se vide upisani podaci
+	</li><br/>
+	<li>
 		Podesavanje vizuelizacije generisanih podataka u grafani
 		<ol type=1>
 			<li>U pretrazivacu uneti localhost:3000</li>
@@ -47,13 +54,6 @@
 			</li>
 			<li>Apply</li>
 		</ol>
-	</li><br/>
-	<li>
-		Pokrenuti fajl ./sensor-data-gen/genSensorData.py:<br/>
-		<pre>python genSensorData.py</pre>
-	</li><br/>
-	<li>
-		Iz postman-a komanda GET http://0.0.0.0:48080/api/v1/reading i trebalo bi da se vide upisani podaci
 	</li><br/>
 	<li>
 		U pretraživaču otvoriti http://localhost:5000
