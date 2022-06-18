@@ -25,6 +25,3 @@
 9. Ponoviti 5. korak da se upise u influxdb i grafana napravi se konekcija za ovu bazu da se ,,posmatra"
 
 10. Komande za EdgeX ostale
-
-
-	

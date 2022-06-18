@@ -269,6 +269,7 @@ services:
         - consul
   #      - logging  # uncomment if re-enabled remote logging
         - data
+        - mosquitto
 
 
 
