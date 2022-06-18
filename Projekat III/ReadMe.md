@@ -3,26 +3,26 @@
 <ol>
 	<li>
 		Iz foldera ./Kod:<br/>
-		docker-compose -p projekat3 up -d
-	</li>
+		<b>docker-compose -p projekat3 up -d</b>
+	</li><br/>
 	<li>
 		Pokrenuti fajl ./EdgeX_Tutorial/deviceCreation/createSensorCluster.py:<br/>
-		python createSensorCluster.py -ip 127.0.0.1
-	</li>
+		<b>python createSensorCluster.py -ip 127.0.0.1</b>
+	</li><br/>
 	<li>
 		Iz postman-a komanda GET http://0.0.0.0:48082/api/v1/device
-	</li>
+	</li><br/>
 	<li>
 		Pokrenuti fajl EdgeX_Tutorial/deviceCreation/createRESTDevice.py:<br/>
-		python createRESTDevice.py -ip 127.0.0.1 -devip <uneti ID device-a iz postman-a> [preferably c18d9df1-57eb-4ba3-9169-17b8c84ecb96 (Sensor_cluster_project_iii)]
-	</li>
+		<b>python createRESTDevice.py -ip 127.0.0.1 -devip <uneti ID device-a iz postman-a> </b> [preferably c18d9df1-57eb-4ba3-9169-17b8c84ecb96 (Sensor_cluster_project_iii)]
+	</li><br/>
 	<li>
 		Pokrenuti fajl EdgeX_Tutorial/sensorDataGeneration/genSensorData.py:<br/>
-		python genSensorData.py
-	</li>
+		<b>python genSensorData.py</b>
+	</li><br/>
 	<li>
 		Iz postman-a komanda GET http://0.0.0.0:48080/api/v1/reading i trebalo bi da se vide upisani podaci
-	</li>
+	</li><br/>
 	<li>
 		Podesavanje vizuelizacije generisanih podataka u grafani
 		<ol type=1>
@@ -54,8 +54,8 @@
 			</li>
 			<li>Apply</li>
 		</ol>
-	</li>
+	</li><br/>
 	<li>
 		Komande za EdgeX ostale
-	</li>
+	</li><br/>
 </ol>
