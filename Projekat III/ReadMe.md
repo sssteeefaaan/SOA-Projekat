@@ -3,7 +3,7 @@
 <ol>
 	<li>
 		Iz foldera ./docker-compose:<br/>
-	```
+	```console
 		docker-compose -p projekat3 up -d
 	```
 	</li><br/>
