@@ -14,9 +14,7 @@
 			<pre>docker-compose -p projekat1 up -d</pre>
 		</li>
 	</ol>
-
 	<h1>Nakon pokretanja dostupan WEB UI:</h1>
-
 	<ul>
 		<li>
 			Swagger UI<br/>
@@ -27,7 +25,6 @@
 			<pre><a href="http://localhost:4200">http://localhost:4200</a></pre>
 		</li>
 	</ul>
-
 	<h1>Kratak opis</h1>
 	<b>Tema projekta: "<i>Pretraga i resezrvacija letova</i>"<br/>
 	Za projekat su iskorišćeni:
@@ -40,7 +37,6 @@
 	    </li>
 	  </ul>
 	</b>
-
 	<h1>Kontejneri</h1>
 	<ul>
 	  <li>
