@@ -16,8 +16,7 @@
             Konfiguracija eKuiper-a:
             <ol>
                 <li>
-                    U pretraživaču otvoriti eKuiperManager Web UI<br/>
-                    <a href="http://localhost:9082">http://localhost:9082</a>
+                    U pretraživaču otvoriti eKuiperManager Web UI  [<a href="http://localhost:9082">http://localhost:9082</a>]
                 </li>
                 <li>
                     Ulogovati se:
