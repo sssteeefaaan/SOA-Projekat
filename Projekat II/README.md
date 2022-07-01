@@ -80,7 +80,7 @@
                                     </ul>
                                 </li>
                             </ul>
-                        </li><br/>
+                        </li>
                     </ol>
                 </li>
             </ol>
@@ -91,6 +91,10 @@
         <li>
             Izvršiti POST request na endpoint
             <pre>/weather/start</pre>
+        </li><br/>
+        <li>
+            Nadgledati podatke u bazi<br/>
+            <pre>mongodb://admin:admin@mongo:27017/?authSource=admin</pre>
         </li>
     </ol>
 </body>
