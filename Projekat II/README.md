@@ -2,10 +2,6 @@
     <h1>Tutorijal</h1>
     <ol>
         <li>
-            Kreirati eksterni network "<em>flightbookings</em>" ukoliko već ne postoji
-            <pre>docker network create flightbookings</pre>
-        </li>
-        <li>
             Pokrenuti prvi projekat  [<a href="https://github.com/sssteeefaaan/SOA-Projekat/edit/main/Projekat%20I">Tutorijal</a>]
         </li><br/>
         <li>
