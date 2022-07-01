@@ -16,7 +16,7 @@ stub = AlertsStub(insecure_channel(GRPC_URL))
 broker = Client()
 
 mongoDB = MongoClient(environ.get('MONGO_URL_LOCAL', "localhost:27017"))
-mongoAlerts = mongoDB.alerts
+mongoDB_weather = mongoDB.weather
 #mongoAlerts.alerts.create_indexes([IndexModel([("username", 1)], name="username"), IndexModel([("departureDate", 1)], name="departureDate")])
 
 def onAlert(c: Client, userData, message: MQTTMessage):
@@ -27,18 +27,23 @@ def onAlert(c: Client, userData, message: MQTTMessage):
             "date": dt.utcnow(),
             "payload": loads(message.payload)
         }
-        document["id"] = str(mongoAlerts.alerts.insert_one(document).inserted_id)
-        print(stub.Send(Alert(id = document["id"], sender = document["sender"], receiver = document["receiver"], date = document["date"].isoformat(), payload = dumps(document["payload"]))).status)
+        document["id"] = str(mongoDB_weather.alerts.insert_one(document).inserted_id)
+        print("GRPC server response:", stub.Send(Alert(id = document["id"], sender = document["sender"], receiver = document["receiver"], date = document["date"].isoformat(), payload = dumps(document["payload"]))).status)
     except Exception as e:
         print("Error occurred:", str(e))
 
 def onMessageDefault(c: Client, userData, message: MQTTMessage):
     data = loads(message.payload)
-    print("Payload:", data)
+    #print("Payload:", data)
 
-broker.connect(environ.get("MQTT_HOST", "localhost"), int(environ.get("MQTT_PORT", "1883")))
-broker.subscribe(MQTT_SUB_CHANNEL)
-broker.message_callback_add(MQTT_SUB_CHANNEL, onAlert)
+def onConnect(*args, **kwargs):
+    print("Connected successfully!")
+    broker.subscribe(MQTT_SUB_CHANNEL)
+    broker.message_callback_add(MQTT_SUB_CHANNEL, onAlert)
+
 broker.on_message = onMessageDefault
+broker.on_connect = onConnect
+broker.connect(environ.get("MQTT_HOST", "localhost"), int(environ.get("MQTT_PORT", "1883")))
 
+print("Configured successfully!")
 broker.loop_forever()

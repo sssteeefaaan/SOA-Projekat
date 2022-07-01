@@ -1,5 +1,7 @@
 version: "3"
+
 services:
+
   mosquitto:
     image: eclipse-mosquitto
     container_name: mosquitto
@@ -9,6 +11,9 @@ services:
       - ./mosquitto/conf:/mosquitto/config
       - ./mosquitto/data:/mosquitto/data
       - ./mosquitto/log:/mosquitto/log
+    networks:
+      - flightbookings
+
   ekuiper:
     image: lfedge/ekuiper:1.4-slim
     container_name: ekuiper
@@ -19,6 +24,9 @@ services:
       - "20498:20498"
     environment:
       - MQTT_SOURCE__DEFAULT__SERVER=tcp://mosquitto:1883
+    networks:
+      - flightbookings
+
   ekuiper_manager:
     image: emqx/ekuiper-manager:1.4
     container_name: manager
@@ -26,12 +34,18 @@ services:
       - ekuiper
     ports:
       - "9082:9082"
+    networks:
+      - flightbookings
+
   notifications:
     build: ./Notifications
     container_name: notifications
     ports:
       - "9999:80"
       - "9998:443"
+    networks:
+      - flightbookings
+
   analytics:
     build: ./analytics
     container_name: analytics
@@ -44,8 +58,14 @@ services:
       - "GRPC_URL=notifications:80"
       - MQTT_HOST=mosquitto
       - MQTT_PORT=1883
-      - MQTT_SUB_CHANNEL=devices/notifications
-      - MQTT_PUB_CHANNEL=devices/messages
+      - MQTT_SUB_CHANNEL=services/alerts
+      - MONGO_URL_LOCAL=mongodb://admin:admin@mongo:27017/?authSource=admin
       - FLASK_APP=Analytics
       - FLASK_ENV=development
       - PYTHONUNBUFFERED=1
+    networks:
+      - flightbookings
+
+networks:
+  flightbookings:
+    external: true

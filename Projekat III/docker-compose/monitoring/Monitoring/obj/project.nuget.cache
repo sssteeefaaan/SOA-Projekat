@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "QxOBtl8p5cD5uN1XqId29Vi6DDQ/IlrtSfZiSs+jjtDyBNHpeLf/uxygzNg9toUe6tclJyChonqSyiPfVdb5iw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Stefan\\Desktop\\SOA-Projekat\\Projekat III\\docker-compose\\monitoring\\Monitoring\\Monitoring.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Stefan\\.nuget\\packages\\mqttnet\\4.0.1.184\\mqttnet.4.0.1.184.nupkg.sha512",
+    "C:\\Users\\Stefan\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}

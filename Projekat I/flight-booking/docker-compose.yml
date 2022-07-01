@@ -7,6 +7,7 @@ services:
       context: .
     image: flight-booking
     env_file: docker-compose.env
+    container_name: gateway
     environment:
       SERVICES: gateway
       PORT: 3000
@@ -24,6 +25,7 @@ services:
     build:
       context: .
     image: flight-booking
+    container_name: flights
     env_file: docker-compose.env
     environment:
       SERVICES: flights
@@ -37,6 +39,7 @@ services:
     build:
       context: .
     image: flight-booking
+    container_name: weather
     env_file: docker-compose.env
     environment:
       - CSV_FILE=/var/lib/dataset/seattle-weather.csv
@@ -53,6 +56,7 @@ services:
     build:
       context: ./internalApi
     image: internal_api
+    container_name: internal_api
     environment:
       - PYTHONUNBUFFERED=1
       - INFLUX_HOST=influx
@@ -74,6 +78,7 @@ services:
 
   influx:
     image: influxdb:1.8
+    container_name: influx
     volumes:
       - "./persisted/influxdb-storage/:/var/lib/influx.db"
     ports:
@@ -83,6 +88,7 @@ services:
 
   mongo:
     image: mongo:latest
+    container_name: mongo
     volumes:
       # - "./persisted/mongodb-storage/:/data/db"
       - mongodb:/data/db
@@ -98,6 +104,7 @@ services:
     ports:
       - 4200:3000
     image: grafana/grafana
+    container_name: grafana
     depends_on:
       - influx
     links:
@@ -109,11 +116,13 @@ services:
 
   nats:
     image: nats:latest
+    container_name: nats
     networks:
       - flightbookings
 
   traefik:
     image: traefik:latest
+    container_name: traefik
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
@@ -128,6 +137,7 @@ services:
   
   swagger-ui:
     image: swaggerapi/swagger-ui
+    container_name: swagger-ui
     ports:
         - "80:8080"
     volumes:

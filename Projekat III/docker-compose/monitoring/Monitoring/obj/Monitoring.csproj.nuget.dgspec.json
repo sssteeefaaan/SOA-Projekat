@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Stefan\\Desktop\\SOA-Projekat\\Projekat III\\Kod\\monitoring\\Monitoring\\Monitoring.csproj": {}
+    "C:\\Users\\Stefan\\Desktop\\SOA-Projekat\\Projekat III\\docker-compose\\monitoring\\Monitoring\\Monitoring.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Stefan\\Desktop\\SOA-Projekat\\Projekat III\\Kod\\monitoring\\Monitoring\\Monitoring.csproj": {
+    "C:\\Users\\Stefan\\Desktop\\SOA-Projekat\\Projekat III\\docker-compose\\monitoring\\Monitoring\\Monitoring.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Stefan\\Desktop\\SOA-Projekat\\Projekat III\\Kod\\monitoring\\Monitoring\\Monitoring.csproj",
+        "projectUniqueName": "C:\\Users\\Stefan\\Desktop\\SOA-Projekat\\Projekat III\\docker-compose\\monitoring\\Monitoring\\Monitoring.csproj",
         "projectName": "Monitoring",
-        "projectPath": "C:\\Users\\Stefan\\Desktop\\SOA-Projekat\\Projekat III\\Kod\\monitoring\\Monitoring\\Monitoring.csproj",
+        "projectPath": "C:\\Users\\Stefan\\Desktop\\SOA-Projekat\\Projekat III\\docker-compose\\monitoring\\Monitoring\\Monitoring.csproj",
         "packagesPath": "C:\\Users\\Stefan\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Stefan\\Desktop\\SOA-Projekat\\Projekat III\\Kod\\monitoring\\Monitoring\\obj\\",
+        "outputPath": "C:\\Users\\Stefan\\Desktop\\SOA-Projekat\\Projekat III\\docker-compose\\monitoring\\Monitoring\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
