@@ -1,6 +1,10 @@
 <h1>Pokretanje</h1>
 <ol>
-  <li>
+	<li>
+            Kreirati eksterni network "<em>flightbookings</em>" ukoliko već ne postoji
+            <pre>docker network create flightbookings</pre>
+        </li>
+  	<li>
 		Pozicionirati se u okviru direktorijuma ./flight-booking<br/>
 		<pre>cd flight-booking</pre>
 	</li>
