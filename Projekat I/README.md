@@ -15,11 +15,11 @@
 <ul>
 	<li>
 		Swagger UI<br/>
-		<pre>http://localhost:80</pre>
+		<pre><a href="http://localhost:80">http://localhost:80</a></pre>
 	</li>
 	<li>
 		Grafana<br/>
-		<pre>http://localhost:4200</pre>
+		<pre><a href="http://localhost:4200">http://localhost:4200</a></pre>
 	</li>
 </ul>
 
