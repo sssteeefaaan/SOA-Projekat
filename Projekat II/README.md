@@ -85,7 +85,7 @@
             Otvoriti Swager UI  [<a href="http://localhost:80">http://localhost:80</a>]
         </li><br/>
         <li>
-            Izvršiti POST request na endpoint
+            Izvršiti PUT request na endpoint
             <pre>/weather/start</pre>
         </li><br/>
         <li>
